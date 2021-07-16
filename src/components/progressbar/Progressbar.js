@@ -4,18 +4,22 @@ const WHITE_SMOKE = "#eee";
 const GRAY = "#878c88";
 const GREEN = "#72d687";
 const MAX_STEP = 10;
-const MAX_WIDTH = "90vw";
+
 export default function Progressbar({ step, setStep, getData }) {
   const [play, setPlay] = useState(false);
   const [interval, setProgressInterval] = useState(null);
   const [lastIntent] = useState(0);
-
+  const isLastStep = step === MAX_STEP;
   function start() {
     setPlay(true);
     setProgressInterval(
       setInterval(async () => {
         // if (getData) await getData();
-        setStep((prev) => ++prev);
+        if (isLastStep) {
+          setStep(0);
+        } else {
+          setStep((prev) => ++prev);
+        }
       }, 1000)
     );
   }
@@ -32,7 +36,7 @@ export default function Progressbar({ step, setStep, getData }) {
   }, [interval]);
 
   useEffect(() => {
-    if (step === MAX_STEP) stop();
+    if (isLastStep) stop();
     //eslint-disable-next-line
   }, [step]);
 
