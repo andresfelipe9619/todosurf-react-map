@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import HeatmapOverlay from "leaflet-heatmap";
 
 const HEATMAP_CONFIG = {
-  maxOpacity: 0.38,
+  maxOpacity: 0.8,
   scaleRadius: true,
   useLocalExtrema: true,
   latField: "x",
@@ -25,7 +25,6 @@ const Heatmap = ({ data, map, controlRef }) => {
     if (reference) reference.addOverlay(heatmapLayer, layerName);
 
     heatmapLayer.addTo(map);
-
     return () => heatmapLayer.remove();
     //eslint-disable-next-line
   }, [map]);

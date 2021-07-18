@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import L from "leaflet";
-import { getSurfingSpots } from "../../api";
+// import { getSurfingSpots } from "../../api";
+import { coast } from "./coast";
 
 export default function SurfingSpots({ map }) {
   //   const layerName = "Spots";
@@ -8,11 +9,21 @@ export default function SurfingSpots({ map }) {
     if (!map) return;
     const loadSurfingFeatures = async () => {
       try {
-        const data = await getSurfingSpots();
-        const surfLayer = new L.GeoJSON(data, {
-          pointToLayer,
+        // const data = await getSurfingSpots();
+        // const surfLayer = new L.GeoJSON(data, {
+        //   pointToLayer,
+        // });
+        // surfLayer.addTo(map);
+        const coastLayer = new L.GeoJSON(coast);
+        coastLayer.setStyle(function (feature) {
+          return {
+            fillColor: "#3d3d3c",
+            color: "#555",
+            fillOpacity: 1,
+          };
         });
-        surfLayer.addTo(map);
+
+        coastLayer.addTo(map);
       } catch (e) {
         console.log("ERROR", e);
       }

@@ -1,7 +1,7 @@
 import L from "leaflet";
 const TILE_LAYER =
   "http://{s}.sm.mapstack.stamen.com/" +
-  "(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" +
+  "(terrain-lines,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" +
   "{z}/{x}/{y}.png";
 const TILE_LAYER_CONFIG = {
   attribution: "Tiles &copy; Esri &mdash;",

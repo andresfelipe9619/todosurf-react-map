@@ -10,11 +10,12 @@
     "leaflet": "^1.7.1",
     "leaflet-heatmap": "^1.0.0",
     "leaflet-velocity": "^1.9.2",
+    "rc-slider": "^9.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-icons": "^4.2.0",
     "react-leaflet": "^3.2.0",
     "react-leaflet-markercluster": "^3.0.0-rc1",
-    "react-player-controls": "^1.1.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
     "web-vitals": "^0.2.4"

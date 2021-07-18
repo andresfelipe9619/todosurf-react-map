@@ -11,7 +11,9 @@ import Query from "./Query";
 import VelocityLayer from "./Velocity";
 import SurfingSpotsLayer from "./SurfingSpots";
 import Progressbar from "../progressbar/Progressbar";
-import { getSurfingSteps } from "../../api";
+// import { getSurfingSteps } from "../../api";
+import { step0 } from "./step0";
+import Control from "./Control";
 
 export default function Map() {
   const [center, setCenter] = useState(null);
@@ -22,6 +24,7 @@ export default function Map() {
   useEffect(() => {
     (async () => {
       let data = await getHeatmapData(step);
+      console.log(`data`, data);
       setHeatmapData(data);
     })();
   }, [step]);
@@ -33,37 +36,43 @@ export default function Map() {
   };
 
   return (
-    <MapContainer
-      scrollWheelZoom
-      className="map"
-      {...MAP_OPTIONS}
-      center={center || MAP_OPTIONS.center}
-    >
-      <Query setCenter={setCenter} />
-      <Progressbar {...mapProps} />
-      <LayersControl position="topright" ref={controlRef}>
-        <LayersControl.BaseLayer checked name="OpenStreetMap">
-          <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
-        </LayersControl.BaseLayer>
-        <MapConsumer>
-          {(map) => {
-            return (
-              <>
-                <HeatmapLayer {...mapProps} data={heatmapData} map={map} />
-                <VelocityLayer {...mapProps} map={map} />
-                <SurfingSpotsLayer {...mapProps} map={map} />
-              </>
-            );
-          }}
-        </MapConsumer>
-      </LayersControl>
-    </MapContainer>
+    <>
+      <MapContainer
+        scrollWheelZoom
+        className="map"
+        {...MAP_OPTIONS}
+        center={center || MAP_OPTIONS.center}
+      >
+        <Control position="bottomleft">
+          <Progressbar {...mapProps} />
+        </Control>
+        <Query setCenter={setCenter} />
+        <LayersControl position="topright" ref={controlRef}>
+          <LayersControl.BaseLayer checked name="OpenStreetMap">
+            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
+          </LayersControl.BaseLayer>
+          <MapConsumer>
+            {(map) => {
+              return (
+                <>
+                  {heatmapData.length && (
+                    <HeatmapLayer {...mapProps} data={heatmapData} map={map} />
+                  )}
+                  <SurfingSpotsLayer {...mapProps} map={map} />
+                  <VelocityLayer {...mapProps} map={map} />
+                </>
+              );
+            }}
+          </MapConsumer>
+        </LayersControl>
+      </MapContainer>
+    </>
   );
 }
 
 async function getHeatmapData(step) {
-  const surfingStep = await getSurfingSteps(step);
-  surfingStep.features.map((f) => ({
+  const surfingStep = step0;
+  return surfingStep.features.map((f) => ({
     value: f?.properties?.wave_height,
     radius: 0.4,
     x: f?.geometry?.coordinates[1],

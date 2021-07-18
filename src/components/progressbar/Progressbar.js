@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Slider, PlayerIcon, Direction } from "react-player-controls";
+import { FaPlay as Play, FaPause as Pause } from "react-icons/fa";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
+
 const WHITE_SMOKE = "#eee";
-const GRAY = "#878c88";
-const GREEN = "#72d687";
+const SECONDARY = "#ffc50b";
+const PRIMARY = "#f5821f";
 const MAX_STEP = 10;
 
 export default function Progressbar({ step, setStep, getData }) {
   const [play, setPlay] = useState(false);
   const [interval, setProgressInterval] = useState(null);
-  const [lastIntent] = useState(0);
   const isLastStep = step === MAX_STEP;
+
+  const handleChange = (value) => {
+    setStep(value);
+  };
+
   function start() {
     setPlay(true);
     setProgressInterval(
@@ -40,124 +47,45 @@ export default function Progressbar({ step, setStep, getData }) {
     //eslint-disable-next-line
   }, [step]);
 
-  const progress = step / MAX_STEP;
-
   console.log(`step`, step);
-  console.log(`progress`, progress);
   return (
-    <div className="player">
-      {!play && (
-        <PlayerIcon.Play
-          width={32}
-          height={32}
-          style={{ marginRight: 32 }}
-          onClick={start}
+    <div className="player-container">
+      <div className="player-icon">
+        {!play && <Play size={20} onClick={start} />}
+        {play && <Pause size={20} onClick={stop} />}
+      </div>
+      <div className="player">
+        <Slider
+          dots
+          min={0}
+          value={step}
+          max={MAX_STEP}
+          onChange={handleChange}
+          dotStyle={{
+            borderColor: PRIMARY,
+            marginBottom: -5,
+            height: 12,
+            width: 12,
+          }}
+          activeDotStyle={{
+            background: SECONDARY,
+            height: 18,
+            width: 18,
+            marginBottom: -8,
+          }}
+          railStyle={{ backgroundColor: WHITE_SMOKE, height: 10 }}
+          trackStyle={{ backgroundColor: PRIMARY, height: 10 }}
+          handleStyle={{
+            borderColor: PRIMARY,
+            height: 28,
+            width: 28,
+            marginTop: -9,
+            marginBottom: -5,
+            marginLeft: 10,
+            backgroundColor: SECONDARY,
+          }}
         />
-      )}
-      {play && (
-        <PlayerIcon.Pause
-          width={32}
-          height={32}
-          style={{ marginRight: 32 }}
-          onClick={stop}
-        />
-      )}
-      <Slider
-        direction={Direction.HORIZONTAL}
-        onIntent={(intent) => console.log(`hovered at ${intent}`)}
-        onIntentStart={(intent) =>
-          console.log(`entered with mouse at ${intent}`)
-        }
-        onIntentEnd={() => console.log("left with mouse")}
-        onChange={(newValue) => console.log(`clicked at ${newValue}`)}
-        onChangeStart={(startValue) =>
-          console.log(`started dragging at ${startValue}`)
-        }
-        onChangeEnd={(endValue) =>
-          console.log(`stopped dragging at ${endValue}`)
-        }
-        overlayZIndex={100}
-      >
-        <SliderBar
-          direction={Direction.HORIZONTAL}
-          value={1}
-          style={{ background: WHITE_SMOKE }}
-        />
-        <SliderBar
-          direction={Direction.HORIZONTAL}
-          value={step / MAX_STEP}
-          style={{ background: GREEN }}
-        />
-        <SliderBar
-          direction={Direction.HORIZONTAL}
-          value={lastIntent}
-          style={{ background: "rgba(0, 0, 0, 0.05)" }}
-        />
-        <SliderHandle
-          direction={Direction.HORIZONTAL}
-          value={progress}
-          style={{ background: GREEN }}
-        />
-      </Slider>
+      </div>
     </div>
   );
 }
-
-const SliderBar = ({ direction, value, style }) => (
-  <div
-    style={{
-      position: "absolute",
-      background: GRAY,
-      borderRadius: 4,
-      ...(direction === Direction.HORIZONTAL
-        ? {
-            top: "calc(50% - 4px)",
-            left: 0,
-            width: `${value * 100}%`,
-            height: 8,
-          }
-        : {
-            right: 0,
-            bottom: 0,
-            left: "calc(50% - 4px)",
-            width: 8,
-            height: `${value * 100}%`,
-          }),
-      ...style,
-    }}
-  />
-);
-
-const SliderHandle = ({ direction, value, style }) => (
-  <div
-    style={Object.assign(
-      {},
-      {
-        position: "absolute",
-        width: 16,
-        height: 16,
-        background: GREEN,
-        borderRadius: "100%",
-        transform: "scale(1)",
-        transition: "transform 0.2s",
-        "&:hover": {
-          transform: "scale(1.3)",
-        },
-      },
-      direction === Direction.HORIZONTAL
-        ? {
-            top: "calc(50% - 4px)",
-            left: `${value * 100}%`,
-            marginTop: -4,
-            marginLeft: -8,
-          }
-        : {
-            left: "calc(50% - 4px)",
-            bottom: `${value * 100}%`,
-            marginBottom: -8,
-            marginLeft: -4,
-          },
-      style
-    )}
-  />
-);

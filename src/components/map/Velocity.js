@@ -11,6 +11,7 @@ const Velocity = ({ map, controlRef }) => {
     const velocityLayer = L.velocityLayer({ ...VELOCITY_CONFIG, data: espana });
     if (reference) reference.addOverlay(velocityLayer, layerName);
     velocityLayer.addTo(map);
+    return () => velocityLayer.remove();
   }, [map, controlRef]);
   return null;
 };
@@ -37,7 +38,7 @@ const VELOCITY_CONFIG = {
   displayValues: true,
   displayOptions: {
     velocityType: "GBR Wind",
-    position: "bottomleft",
+    position: "bottomright",
     emptyString: "No wind data",
     showCardinal: true,
   },
