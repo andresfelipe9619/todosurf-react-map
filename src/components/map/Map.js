@@ -11,7 +11,7 @@ import Query from "./Query";
 import VelocityLayer from "./Velocity";
 import SurfingSpotsLayer from "./SurfingSpots";
 import Progressbar from "../progressbar/Progressbar";
-// import { getSurfingSteps } from "../../api";
+import { getSurfingSteps } from "../../api";
 import { step0 } from "./step0";
 import Control from "./Control";
 
@@ -24,6 +24,8 @@ export default function Map() {
   useEffect(() => {
     (async () => {
       let data = await getHeatmapData(step);
+      let stepData = getSurfingSteps(step);
+      console.log(`stepData`, stepData);
       console.log(`data`, data);
       setHeatmapData(data);
     })();
