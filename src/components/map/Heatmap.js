@@ -1,34 +1,31 @@
-import { useEffect } from "react";
-import HeatmapOverlay from "leaflet-heatmap";
+import { useEffect } from 'react'
+import L from 'leaflet'
+import 'leaflet.heat'
 
 const HEATMAP_CONFIG = {
-  maxOpacity: 0.8,
-  scaleRadius: true,
-  useLocalExtrema: true,
-  latField: "x",
-  lngField: "y",
-  valueField: "value",
-};
+  radius: 15,
+  max: 2.5,
+  blur: 15,
+  maxZoom: 15,
+  minOpacity: 0.5,
+  colorGradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' }
+}
 
 const Heatmap = ({ data, map, controlRef }) => {
-  const layerName = "Heatmap";
-  console.log(`data`, data);
+  const layerName = 'Heatmap'
 
   useEffect(() => {
-    if (!map) return;
-    const reference = controlRef?.current;
-    const heatmapLayer = new HeatmapOverlay(HEATMAP_CONFIG);
-    heatmapLayer.setData({
-      max: 100,
-      data,
-    });
-    if (reference) reference.addOverlay(heatmapLayer, layerName);
+    if (!map) return
+    const reference = controlRef?.current
+    const heatmapData = data.map(item => [item.x, item.y, item.value])
+    const heatmapLayer = L.heatLayer(heatmapData, HEATMAP_CONFIG)
+    if (reference) reference.addOverlay(heatmapLayer, layerName)
+    heatmapLayer.addTo(map)
 
-    heatmapLayer.addTo(map);
-    return () => heatmapLayer.remove();
+    return () => heatmapLayer.remove()
     //eslint-disable-next-line
-  }, [map]);
-  return null;
-};
+  }, [map])
+  return null
+}
 
-export default Heatmap;
+export default Heatmap
