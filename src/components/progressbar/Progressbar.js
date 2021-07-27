@@ -21,13 +21,9 @@ export default function Progressbar({ step, setStep, getData }) {
     setPlay(true);
     setProgressInterval(
       setInterval(async () => {
-        // if (getData) await getData();
-        if (isLastStep) {
-          setStep(0);
-        } else {
-          setStep((prev) => ++prev);
-        }
-      }, 1000)
+        if (isLastStep) setStep(0);
+        else setStep((prev) => ++prev);
+      }, 4000)
     );
   }
 

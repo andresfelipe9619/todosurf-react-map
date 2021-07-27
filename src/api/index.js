@@ -6,7 +6,7 @@ export async function getSurfingSpots() {
   return data;
 }
 
-export async function getSurfingSteps(step = 0) {
+export async function getWindData(step = 0) {
   const { data } = await axios.get(`${STEP_URL}?step=${step}`);
   return data;
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, memo } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -6,31 +6,43 @@ import {
   MapConsumer,
 } from "react-leaflet";
 import MAP_OPTIONS, { TILE_LAYER, TILE_LAYER_CONFIG } from "./map.options";
-import HeatmapLayer from "./Heatmap";
+import HeatmapLayer from "./layers/Heatmap";
 import Query from "./Query";
-import VelocityLayer from "./Velocity";
-import SurfingSpotsLayer from "./SurfingSpots";
+import VelocityLayer from "./layers/Velocity";
+import SurfingSpotsLayer from "./layers/SurfingSpots";
 import Progressbar from "../progressbar/Progressbar";
-import { getSurfingSteps } from "../../api";
 import { step0 } from "./step0";
 import Control from "./Control";
+import { getWindData } from "../../api";
+const MAX_STEP = 9;
+const STEPS = [...Array(MAX_STEP)].map((_, i) => ++i);
 
-export default function Map() {
+function Map() {
   const [center, setCenter] = useState(null);
-  const [step, setStep] = useState(0);
+  const [windData, setWindData] = useState([]);
   const [heatmapData, setHeatmapData] = useState([]);
+  const [step, setStep] = useState(0);
   const controlRef = useRef(null);
-
+  console.log(`windData`, windData);
   useEffect(() => {
-    (async () => {
-      let data = await getHeatmapData(step);
-      let stepData = getSurfingSteps(step);
-      console.log(`stepData`, stepData);
-      console.log(`data`, data);
-      setHeatmapData(data);
-    })();
-  }, [step]);
-
+    const init = async () => {
+      console.log(`=== INIT ===`);
+      const heatmap = mapHeatmapData();
+      setHeatmapData(heatmap);
+      const wind = await getWindData();
+      setWindData([wind]);
+      const half = Math.floor(STEPS / 2);
+      const firstSteps = await Promise.all(
+        STEPS.slice(0, half).map(getWindData)
+      );
+      setWindData((prev) => prev.concat(firstSteps));
+      const lastSteps = await Promise.all(
+        STEPS.slice(half, MAX_STEP).map(getWindData)
+      );
+      setWindData((prev) => prev.concat(lastSteps));
+    };
+    init();
+  }, []);
   const mapProps = {
     step,
     setStep,
@@ -45,9 +57,11 @@ export default function Map() {
         {...MAP_OPTIONS}
         center={center || MAP_OPTIONS.center}
       >
-        <Control position="bottomleft">
-          <Progressbar {...mapProps} />
-        </Control>
+        {windData.length && (
+          <Control position="bottomleft">
+            <Progressbar {...mapProps} />
+          </Control>
+        )}
         <Query setCenter={setCenter} />
         <LayersControl position="topright" ref={controlRef}>
           <LayersControl.BaseLayer checked name="OpenStreetMap">
@@ -57,11 +71,21 @@ export default function Map() {
             {(map) => {
               return (
                 <>
-                  {heatmapData.length && (
-                    <HeatmapLayer {...mapProps} data={heatmapData} map={map} />
-                  )}
+                  {/* {heatmapData && (
+                    <HeatmapLayer
+                      {...mapProps}
+                      map={map}
+                      heatmapData={heatmapData}
+                    />
+                  )} */}
                   <SurfingSpotsLayer {...mapProps} map={map} />
-                  <VelocityLayer {...mapProps} map={map} />
+                  {windData.length && (
+                    <VelocityLayer
+                      {...mapProps}
+                      map={map}
+                      windData={windData}
+                    />
+                  )}
                 </>
               );
             }}
@@ -72,7 +96,7 @@ export default function Map() {
   );
 }
 
-async function getHeatmapData(step) {
+function mapHeatmapData(step) {
   const surfingStep = step0;
   return surfingStep.features.map((f) => ({
     value: f?.properties?.wave_height,
@@ -81,3 +105,5 @@ async function getHeatmapData(step) {
     y: f?.geometry?.coordinates[0],
   }));
 }
+
+export default memo(Map);

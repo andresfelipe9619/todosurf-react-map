@@ -1,14 +1,6 @@
-.App {
-  text-align: center;
-}
-
 .map {
   height: 80vh;
   width: 100%;
-}
-
-.popup {
-  min-width: 300;
 }
 
 .player-container {
@@ -27,8 +19,6 @@
   box-sizing: border-box;
 }
 
-/* .leaflet-bar { */
-/* } */
 .player-icon {
   height: 40px;
   width: 40px;
@@ -39,4 +29,51 @@
   border-radius: 50%;
   background: #fff;
   color: #f5821f;
+}
+
+/*POPUP STYLES*/
+.leaflet-div-icon {
+  background: #a8a8a8;
+  border-radius: 50%;
+}
+
+.custom .leaflet-popup-tip {
+  background: #a9a9a9;
+}
+.custom .leaflet-popup-content-wrapper {
+  color: #ffffff;
+  background: #a9a9a9;
+}
+.custom .leaflet-popup-content {
+  flex: 1;
+  display: flex;
+  margin: 6px;
+  max-width: 150px;
+  min-width: 100px;
+  background: #a9a9a9;
+}
+
+.wave-score {
+  color: white;
+  padding: 5% 2%;
+  min-width: 50px;
+  text-align: center;
+  border-radius: 10%;
+  margin: -4% 2% -4% -4%;
+  background-color: #f79429;
+}
+
+.wave-score > span {
+  top: 15%;
+  position: relative;
+  line-height: normal;
+  font-size: 1.4em;
+}
+.wave-link {
+  text-align: center;
+  margin-left: 5px;
+}
+.wave-link > a {
+  color: black;
+  font-size: 1.2em;
 }

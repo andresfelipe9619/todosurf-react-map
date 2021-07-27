@@ -52,7 +52,7 @@ const loadMap = (options = {}) => {
   const velocityLayer = L.velocityLayer({ ...VELOCITY_CONFIG, data: espana })
   const heatmapLayer = new HeatmapOverlay(HEATMAP_CONFIG)
 
-  const heatmapData = getHeatmapData(step)
+  const heatmapData = getWindData(step)
   heatmapLayer.setData({
     max: 100,
     data: heatmapData
