@@ -93,7 +93,7 @@ function Map() {
             <Progressbar {...mapProps} />
           </Control>
         )}
-        {loading && (
+        {!!loading && (
           <Control position="center">
             <div className="loading-container">
               <h2>Cargando {loadingStep || "spots"} ...</h2>
@@ -109,7 +109,7 @@ function Map() {
             {(map) => {
               return (
                 <>
-                  {waveData.length && (
+                  {!!waveData.length && (
                     <HeatmapLayer
                       {...mapProps}
                       map={map}
@@ -117,7 +117,7 @@ function Map() {
                     />
                   )}
                   <SurfingSpotsLayer {...mapProps} map={map} />
-                  {windData.length && (
+                  {!!windData.length && (
                     <VelocityLayer
                       {...mapProps}
                       map={map}

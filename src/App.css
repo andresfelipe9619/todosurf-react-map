@@ -20,8 +20,7 @@
 }
 
 .center {
-  padding-top: 50%;
-  padding-left: 50%;
+  margin-left: 40vw;
 }
 
 .leaflet-bar {

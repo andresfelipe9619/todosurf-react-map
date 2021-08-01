@@ -1,8 +1,8 @@
 import axios from "axios";
 import { setupCache } from "axios-cache-adapter";
 
-const SURF_URL = "http://198.245.63.175:88/api/v1/spots.php";
-const STEP_URL = "http://198.245.63.175:88/api/v1/forecast.php";
+const SURF_URL = "https://data.todosurf.com/api/v1/spots.php";
+const STEP_URL = "https://data.todosurf.com/api/v1/forecast.php";
 
 const cache = setupCache({
   maxAge: 30 * 60 * 1000,
