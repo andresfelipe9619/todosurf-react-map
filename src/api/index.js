@@ -1,12 +1,28 @@
 import axios from "axios";
-const SURF_URL = "https://www.todosurf.com/dev/config/classes/mapaGJS.php?country=all";
-const STEP_URL = "http://198.245.63.175:88/api/v1/data2.php";
+import { setupCache } from "axios-cache-adapter";
+
+const SURF_URL = "http://198.245.63.175:88/api/v1/spots.php";
+const STEP_URL = "http://198.245.63.175:88/api/v1/forecast.php";
+
+const cache = setupCache({
+  maxAge: 30 * 60 * 1000,
+});
+
+const api = axios.create({
+  adapter: cache.adapter,
+});
+
 export async function getSurfingSpots() {
-  const { data } = await axios.get(SURF_URL);
+  const { data } = await api.get(SURF_URL);
   return data;
 }
 
 export async function getWindData(step = 0) {
-  const { data } = await axios.get(`${STEP_URL}?step=${step}`);
+  const { data } = await api.get(`${STEP_URL}?type=wind&step=${step}`);
+  return data;
+}
+
+export async function getWaveData(step = 0) {
+  const { data } = await api.get(`${STEP_URL}?type=wave&step=${step}`);
   return data;
 }

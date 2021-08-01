@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Marker, Popup } from "react-leaflet";
+import { Marker, Popup, LayersControl } from "react-leaflet";
 import L from "leaflet";
 import { getSurfingSpots } from "../../../api";
 import { coast } from "../coast";
-import { spots } from "../spot";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import icon from "./icon";
 
@@ -15,13 +14,10 @@ export default function SurfingSpots({ map }) {
     if (!map) return;
     const loadSurfingFeatures = async () => {
       try {
-        // const geojson = await getSurfingSpots();
-        const data = spots.features.map((spot) => ({
+        const geojson = await getSurfingSpots();
+        const data = geojson.features.map((spot) => ({
           ...spot.properties,
-          position: [
-            spot.geometry.coordinates[1],
-            spot.geometry.coordinates[0],
-          ],
+          position: spot.geometry.coordinates.reverse(),
         }));
 
         setSurfingSpots(data);
@@ -49,16 +45,18 @@ export default function SurfingSpots({ map }) {
   };
 
   return (
-    <MarkerClusterGroup>
-      {surfingSpots.map((spot, i) => (
-        <Marker key={i} position={spot.position} icon={icon()}>
-          <Popup {...popupOptions}>
-            <div class="wave-link">
-              <a href={spot.enlace}>{spot.nombre}</a>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MarkerClusterGroup>
+    <LayersControl.Overlay checked name={layerName}>
+      <MarkerClusterGroup>
+        {surfingSpots.map((spot, i) => (
+          <Marker key={i} position={spot.position} icon={icon()}>
+            <Popup {...popupOptions}>
+              <div class="wave-link">
+                <a href={spot.enlace}>{spot.nombre}</a>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MarkerClusterGroup>
+    </LayersControl.Overlay>
   );
 }

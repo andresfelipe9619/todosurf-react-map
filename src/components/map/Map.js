@@ -5,50 +5,81 @@ import {
   LayersControl,
   MapConsumer,
 } from "react-leaflet";
-import MAP_OPTIONS, { TILE_LAYER, TILE_LAYER_CONFIG } from "./map.options";
+import MAP_OPTIONS, {
+  TILE_LAYER,
+  TILE_LAYER_CONFIG,
+  INITIAL_STEP,
+  MAX_STEP,
+  HALF_STEP,
+  STEPS,
+} from "./map.options";
 import HeatmapLayer from "./layers/Heatmap";
 import Query from "./Query";
 import VelocityLayer from "./layers/Velocity";
 import SurfingSpotsLayer from "./layers/SurfingSpots";
 import Progressbar from "../progressbar/Progressbar";
-import { step0 } from "./step0";
 import Control from "./Control";
-import { getWindData } from "../../api";
-const MAX_STEP = 9;
-const STEPS = [...Array(MAX_STEP)].map((_, i) => ++i);
+import { getWindData, getWaveData } from "../../api";
+
+const concat = (data) => (prev) => prev.concat(data);
+
+const execParallelJob = async ({
+  start = INITIAL_STEP,
+  end = HALF_STEP,
+  get,
+  set,
+  map = (i) => i,
+}) => {
+  const firstBundle = await Promise.all(STEPS.slice(start, end).map(get));
+  set(concat(firstBundle.map(map)));
+  const lastBundle = await Promise.all(STEPS.slice(end, MAX_STEP).map(get));
+  set(concat(lastBundle.map(map)));
+};
 
 function Map() {
   const [center, setCenter] = useState(null);
   const [windData, setWindData] = useState([]);
-  const [heatmapData, setHeatmapData] = useState([]);
-  const [step, setStep] = useState(0);
+  const [waveData, setWaveData] = useState([]);
+  const [step, setStep] = useState(INITIAL_STEP);
+  const [loading, setLoading] = useState(true);
+  const [loadingStep, setLoadingStep] = useState(null);
   const controlRef = useRef(null);
-  console.log(`windData`, windData);
+
   useEffect(() => {
     const init = async () => {
       console.log(`=== INIT ===`);
-      const heatmap = mapHeatmapData();
-      setHeatmapData(heatmap);
-      const wind = await getWindData();
-      setWindData([wind]);
-      const half = Math.floor(STEPS / 2);
-      const firstSteps = await Promise.all(
-        STEPS.slice(0, half).map(getWindData)
-      );
-      setWindData((prev) => prev.concat(firstSteps));
-      const lastSteps = await Promise.all(
-        STEPS.slice(half, MAX_STEP).map(getWindData)
-      );
-      setWindData((prev) => prev.concat(lastSteps));
+      try {
+        setLoadingStep("capas");
+        const [wave, wind] = await Promise.all([getWaveData(), getWindData()]);
+        setWaveData([mapWaveData(wave)]);
+        setWindData([wind]);
+        setLoadingStep("linea de tiempo");
+        await Promise.all([
+          execParallelJob({
+            get: getWindData,
+            set: setWindData,
+          }),
+          execParallelJob({
+            get: getWaveData,
+            set: setWaveData,
+            map: mapWaveData,
+          }),
+        ]);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
     };
     init();
   }, []);
+
   const mapProps = {
     step,
     setStep,
     controlRef,
   };
-
+  console.log(`loading`, loading);
   return (
     <>
       <MapContainer
@@ -57,9 +88,16 @@ function Map() {
         {...MAP_OPTIONS}
         center={center || MAP_OPTIONS.center}
       >
-        {windData.length && (
+        {!loading && (
           <Control position="bottomleft">
             <Progressbar {...mapProps} />
+          </Control>
+        )}
+        {loading && (
+          <Control position="center">
+            <div className="loading-container">
+              <h2>Cargando {loadingStep || "spots"} ...</h2>
+            </div>
           </Control>
         )}
         <Query setCenter={setCenter} />
@@ -71,13 +109,13 @@ function Map() {
             {(map) => {
               return (
                 <>
-                  {/* {heatmapData && (
+                  {waveData.length && (
                     <HeatmapLayer
                       {...mapProps}
                       map={map}
-                      heatmapData={heatmapData}
+                      heatmapData={waveData}
                     />
-                  )} */}
+                  )}
                   <SurfingSpotsLayer {...mapProps} map={map} />
                   {windData.length && (
                     <VelocityLayer
@@ -96,11 +134,9 @@ function Map() {
   );
 }
 
-function mapHeatmapData(step) {
-  const surfingStep = step0;
-  return surfingStep.features.map((f) => ({
+function mapWaveData(data) {
+  return (data.features || []).map((f) => ({
     value: f?.properties?.wave_height,
-    radius: 0.4,
     x: f?.geometry?.coordinates[1],
     y: f?.geometry?.coordinates[0],
   }));

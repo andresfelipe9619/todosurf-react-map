@@ -1,34 +1,43 @@
 import { useEffect } from "react";
-import L from "leaflet";
-import "leaflet.heat";
+import HeatmapOverlay from "leaflet-heatmap";
 
 const HEATMAP_CONFIG = {
-  radius: 200,
-  // max: 15,
-  // blur: 1,
-  // maxZoom: 1,
-  // minOpacity: 0.5,
-  // colorGradient: { 0.1: "blue", 7: "lime", 15: "red" },
+  radius: 3,
+  maxOpacity: 0.6,
+  scaleRadius: true,
+  useLocalExtrema: false,
+  latField: "x",
+  lngField: "y",
+  valueField: "value",
 };
+const heatmapLayer = new HeatmapOverlay(HEATMAP_CONFIG);
 
-const Heatmap = ({ map, heatmapData, controlRef }) => {
-  const layerName = "Heatmap";
+const Heatmap = ({ map, step, heatmapData, controlRef }) => {
+  const layerName = "Waves";
+  const layerExists = map.hasLayer(heatmapLayer);
+  const reference = controlRef?.current;
+  useEffect(() => {
+    if (!map || !controlRef) return;
+    if (reference && !layerExists) {
+      reference.addOverlay(heatmapLayer, layerName);
+    }
+    !layerExists && heatmapLayer.addTo(map);
+    return () => layerExists && map.removeLayer(heatmapLayer);
+    //eslint-disable-next-line
+  }, [map, controlRef]);
 
   useEffect(() => {
-    if (!map) return;
-    const reference = controlRef?.current;
-    const data = (heatmapData || []).map((item) => [
-      item.x,
-      item.y,
-      item.value,
-    ]);
-    const heatmapLayer = L.heatLayer(data, HEATMAP_CONFIG);
-    if (reference) reference.addOverlay(heatmapLayer, layerName);
-    heatmapLayer.addTo(map);
-
-    return () => heatmapLayer.remove();
+    if (!heatmapData.length) return;
+    console.log(`setting data`, step);
+    if (step && layerExists) {
+      map.removeLayer(heatmapLayer);
+      heatmapLayer.addTo(map);
+    }
+    const stepData = heatmapData[step];
+    console.log(`stepData`, stepData);
+    heatmapLayer.setData({ data: stepData, max: 40 });
     //eslint-disable-next-line
-  }, [map]);
+  }, [step, heatmapData]);
 
   return null;
 };

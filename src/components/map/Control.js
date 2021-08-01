@@ -3,6 +3,7 @@ const POSITION_CLASSES = {
   bottomright: "leaflet-bottom leaflet-right",
   topleft: "leaflet-top leaflet-left",
   topright: "leaflet-top leaflet-right",
+  center: "leaflet-top leaflet-left center",
 };
 const stopPropagation = (e) => e.stopPropagation();
 

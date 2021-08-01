@@ -33,9 +33,7 @@ const VELOCITY_CONFIG = {
   maxVelocity: 15,
 };
 
-const velocityLayer = L.velocityLayer({
-  ...VELOCITY_CONFIG,
-});
+const velocityLayer = L.velocityLayer(VELOCITY_CONFIG);
 
 const Wind = ({ map, controlRef, windData, step }) => {
   const layerName = "Wind";
