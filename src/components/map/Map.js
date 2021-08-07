@@ -23,27 +23,51 @@ import { getWindData, getWaveData } from "../../api";
 
 const concat = (data) => (prev) => prev.concat(data);
 
-const execParallelJob = async ({
+async function execParallelJob({
   start = INITIAL_STEP,
   end = HALF_STEP,
   get,
   set,
   map = (i) => i,
-}) => {
+}) {
   const firstBundle = await Promise.all(STEPS.slice(start, end).map(get));
   set(concat(firstBundle.map(map)));
   const lastBundle = await Promise.all(STEPS.slice(end, MAX_STEP).map(get));
   set(concat(lastBundle.map(map)));
-};
+}
 
 function Map() {
-  const [center, setCenter] = useState(null);
   const [windData, setWindData] = useState([]);
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
-  const [loading, setLoading] = useState(true);
+  const [haveQuery, sethaveQuery] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
   const controlRef = useRef(null);
+
+  const forecastLabels = waveData.map(([w]) => w.time);
+  console.log(`forecastLabels`, forecastLabels);
+
+  async function laodProgressbarData() {
+    try {
+      sethaveQuery(false);
+      setLoadingStep("linea de tiempo");
+      await Promise.all([
+        execParallelJob({
+          get: getWindData,
+          set: setWindData,
+        }),
+        execParallelJob({
+          get: getWaveData,
+          set: setWaveData,
+          map: mapWaveData,
+        }),
+      ]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingStep(null);
+    }
+  }
 
   useEffect(() => {
     const init = async () => {
@@ -53,22 +77,10 @@ function Map() {
         const [wave, wind] = await Promise.all([getWaveData(), getWindData()]);
         setWaveData([mapWaveData(wave)]);
         setWindData([wind]);
-        setLoadingStep("linea de tiempo");
-        await Promise.all([
-          execParallelJob({
-            get: getWindData,
-            set: setWindData,
-          }),
-          execParallelJob({
-            get: getWaveData,
-            set: setWaveData,
-            map: mapWaveData,
-          }),
-        ]);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        setLoadingStep(null);
       }
     };
     init();
@@ -78,33 +90,26 @@ function Map() {
     step,
     setStep,
     controlRef,
+    forecastLabels,
   };
-  console.log(`loading`, loading);
+  console.log(`haveQuery`, haveQuery);
   return (
     <>
-      <MapContainer
-        scrollWheelZoom
-        className="map"
-        {...MAP_OPTIONS}
-        center={center || MAP_OPTIONS.center}
-      >
-        {!loading && (
+      <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
+        {!haveQuery && (
           <Control position="bottomleft">
             <Progressbar {...mapProps} />
           </Control>
         )}
-        {!!loading && (
+        {!!loadingStep && (
           <Control position="center">
             <div className="loading-container">
               <h2>Cargando {loadingStep || "spots"} ...</h2>
             </div>
           </Control>
         )}
-        <Query setCenter={setCenter} />
+        <Query loadData={laodProgressbarData} />
         <LayersControl position="topright" ref={controlRef}>
-          <LayersControl.BaseLayer checked name="OpenStreetMap">
-            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
-          </LayersControl.BaseLayer>
           <MapConsumer>
             {(map) => {
               return (
@@ -128,6 +133,9 @@ function Map() {
               );
             }}
           </MapConsumer>
+          <LayersControl.BaseLayer checked name="OpenStreetMap">
+            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
+          </LayersControl.BaseLayer>
         </LayersControl>
       </MapContainer>
     </>
@@ -136,6 +144,7 @@ function Map() {
 
 function mapWaveData(data) {
   return (data.features || []).map((f) => ({
+    time: data.forecastTime,
     value: f?.properties?.wave_height,
     x: f?.geometry?.coordinates[1],
     y: f?.geometry?.coordinates[0],

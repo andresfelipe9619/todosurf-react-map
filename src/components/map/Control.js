@@ -11,12 +11,14 @@ const Control = ({ children, position }) => {
   const positionClass =
     (position && POSITION_CLASSES[position]) || POSITION_CLASSES.topright;
   return (
-    <div
-      className={positionClass}
-      onClick={stopPropagation}
-      onDrag={stopPropagation}
-    >
-      <div className="leaflet-control leaflet-bar">{children}</div>
+    <div className={positionClass}>
+      <div
+        className="leaflet-control leaflet-bar"
+        onClick={stopPropagation}
+        onDrag={stopPropagation}
+      >
+        {children}
+      </div>
     </div>
   );
 };

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Marker, Popup, LayersControl } from "react-leaflet";
 import L from "leaflet";
 import { getSurfingSpots } from "../../../api";
-import { coast } from "../coast";
+import coast from './custom.geo.json';
+
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import icon from "./icon";
 
