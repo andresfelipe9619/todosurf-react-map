@@ -4,23 +4,27 @@ import { useMap } from "react-leaflet";
 
 let urlParams = new URLSearchParams(window.location.search);
 
-export default function Query({ setCenter }) {
+export default function Query({ loadData }) {
   const map = useMap();
   useEffect(() => {
-    const zoom = urlParams.get("zoom");
+    const zoom = +urlParams.get("zoom");
     const coords = urlParams.get("center");
-    if (!coords) return;
+    if (!coords) return loadData();
+
     const [lat, lon] = coords.trim().split(",");
     const hasCoords = !!lat && !!lon;
-    console.log(`{lat, lon}`, { lat, lon });
-    let center;
-    if (hasCoords) center = new L.LatLng(lat, lon);
-    setCenter(center);
-    if (zoom && hasCoords) {
-      let mapBounds = map.getBounds();
-      let maxBounds = mapBounds.pad(0.1);
-      map.setMaxBounds(maxBounds);
-    }
+    if (!hasCoords || !zoom) return loadData();
+
+    const center = new L.LatLng(lat, lon);
+    map.setView(center, zoom);
+    const maxZoom = zoom + 2;
+    const minZoom = zoom > 2 ? zoom - 2 : 1;
+    const mapBounds = map.getBounds();
+    const maxBounds = mapBounds.pad(0.1);
+    map.setMaxBounds(maxBounds);
+    map.setMaxZoom(maxZoom);
+    map.setMinZoom(minZoom);
+
     //eslint-disable-next-line
   }, [map]);
 
