@@ -80,7 +80,7 @@ export default function Progressbar({ step, setStep, forecastLabels }) {
         <SliderWithTooltip
           min={0}
           tipFormatter={(v) =>
-            formatHour(forecastLabels[v * DAY_SECTIONS], false)
+            formatHour(forecastLabels[v * DAY_SECTIONS])
           }
           step={1 / DAY_SECTIONS}
           value={step / DAY_SECTIONS}

@@ -109,7 +109,7 @@ function Map() {
           </Control>
         )}
         <Query loadData={laodProgressbarData} />
-        <LayersControl position="topright" ref={controlRef}>
+        <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
               return (

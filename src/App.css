@@ -15,7 +15,7 @@
 }
 
 .mark {
-  color: #555;
+  color: #eee;
   padding: 4px;
 }
 
@@ -30,19 +30,21 @@
 .player-container {
   padding: 10px;
   width: 60vw;
+  padding: 8px 24px;
   display: flex;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.4);
   justify-content: space-around;
   align-items: center;
 }
 
 .player {
-  height: 40px;
+  height: 50px;
   width: 80%;
   display: flex;
   align-items: center;
   box-sizing: border-box;
+}
+.rc-slider-mark-text {
+  width: 100px;
 }
 
 .player-icon {
@@ -113,4 +115,21 @@
 .wave-link > a {
   color: black;
   font-size: 1.2em;
+}
+
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+  border-radius: 4px;
+  background-color: rgba(85, 85, 85, 0.4);
+  font-size: 14px;
+  backdrop-filter: saturate(180%) blur(3px);
+  font-weight: 700;
+  color: #eee;
+  border: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  /* change "blue" browser chrome to yellow/orange */
+  filter: invert(100%) hue-rotate(340deg) brightness(1.7);
 }
