@@ -4,7 +4,7 @@ import {
   FaPause as Pause,
   FaReply as Reply,
 } from "react-icons/fa";
-import Slider from "rc-slider";
+import Slider, { createSliderWithTooltip } from "rc-slider";
 import {
   WHITE_SMOKE,
   SECONDARY,
@@ -13,8 +13,9 @@ import {
   DAY_SECTIONS,
 } from "../map/map.options";
 import "rc-slider/assets/index.css";
+const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-export default function Progressbar({ step, setStep }) {
+export default function Progressbar({ step, setStep, forecastLabels }) {
   const [play, setPlay] = useState(false);
   const [interval, setProgressInterval] = useState(null);
   const isLastStep = step === MAX_STEP;
@@ -39,6 +40,8 @@ export default function Progressbar({ step, setStep }) {
     clearInterval(interval);
   }
 
+  const stopPropagation = (e) => e.stopPropagation();
+
   useEffect(() => {
     return () => {
       interval && clearInterval(interval);
@@ -54,7 +57,11 @@ export default function Progressbar({ step, setStep }) {
   const marks = [...Array(marksCount + 1)]
     .map((_, i) => i)
     .reduce((acc, mark) => {
-      acc[mark] = <strong className="mark">Day {++mark}</strong>;
+      acc[mark] = (
+        <strong className="mark">
+          {formatDate(forecastLabels[mark], false)}
+        </strong>
+      );
       return acc;
     }, {});
   console.log(`marks`, marks);
@@ -65,9 +72,16 @@ export default function Progressbar({ step, setStep }) {
         {isLastStep && <Reply size={20} />}
         {!isLastStep && play && <Pause size={20} />}
       </div>
-      <div className="player">
-        <Slider
+      <div
+        className="player"
+        onClick={stopPropagation}
+        onMouseMove={stopPropagation}
+      >
+        <SliderWithTooltip
           min={0}
+          tipFormatter={(v) =>
+            formatHour(forecastLabels[v * DAY_SECTIONS], false)
+          }
           step={1 / DAY_SECTIONS}
           value={step / DAY_SECTIONS}
           max={MAX_STEP / DAY_SECTIONS}
@@ -81,6 +95,31 @@ export default function Progressbar({ step, setStep }) {
         />
       </div>
     </div>
+  );
+}
+
+const longFormatOptions = {
+  weekday: "short",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+};
+const shortFormatOptions = {
+  weekday: "long",
+  day: "numeric",
+  hour: "numeric",
+};
+
+function formatHour(date) {
+  return new Date(date).toLocaleString("es-ES", { hour: "2-digit" });
+}
+
+function formatDate(date, long = true) {
+  return new Date(date).toLocaleString(
+    "es-ES",
+    long ? longFormatOptions : shortFormatOptions
   );
 }
 
