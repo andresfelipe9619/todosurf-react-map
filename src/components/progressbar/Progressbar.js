@@ -3,6 +3,7 @@ import {
   FaPlay as Play,
   FaPause as Pause,
   FaReply as Reply,
+  FaSpinner as Spinner,
 } from "react-icons/fa";
 import Slider, { createSliderWithTooltip } from "rc-slider";
 import {
@@ -15,8 +16,16 @@ import {
 import "rc-slider/assets/index.css";
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-export default function Progressbar({ step, setStep, forecastLabels, map }) {
+export default function Progressbar({
+  map,
+  step,
+  setStep,
+  loadData,
+  forecastLabels,
+  firstLoad,
+}) {
   const [play, setPlay] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [interval, setProgressInterval] = useState(null);
   const isLastStep = step === MAX_STEP;
 
@@ -25,9 +34,14 @@ export default function Progressbar({ step, setStep, forecastLabels, map }) {
     setStep(value * DAY_SECTIONS);
   };
 
-  function start() {
+  async function start() {
     setPlay(true);
     if (isLastStep) setStep(0);
+    if (firstLoad) {
+      setLoading(true);
+      await loadData();
+      setLoading(false);
+    }
     setProgressInterval(
       setInterval(async () => {
         setStep((prev) => ++prev);
@@ -40,6 +54,21 @@ export default function Progressbar({ step, setStep, forecastLabels, map }) {
     clearInterval(interval);
   }
 
+  function getMarks() {
+    const marksCount = MAX_STEP / DAY_SECTIONS;
+    return [...Array(marksCount + 1)]
+      .map((_, i) => i)
+      .reduce((acc, mark) => {
+        let item = forecastLabels[mark];
+        acc[mark] = (
+          <strong className="mark">
+            {item ? formatDate(item, false) : ""}
+          </strong>
+        );
+        return acc;
+      }, {});
+  }
+
   useEffect(() => {
     return () => {
       interval && clearInterval(interval);
@@ -50,30 +79,23 @@ export default function Progressbar({ step, setStep, forecastLabels, map }) {
     if (isLastStep) stop();
     //eslint-disable-next-line
   }, [step]);
+
   const handler = isLastStep ? start : play ? stop : start;
-  const marksCount = MAX_STEP / DAY_SECTIONS;
-  const marks = [...Array(marksCount + 1)]
-    .map((_, i) => i)
-    .reduce((acc, mark) => {
-      acc[mark] = (
-        <strong className="mark">
-          {formatDate(forecastLabels[mark], false)}
-        </strong>
-      );
-      return acc;
-    }, {});
+  const marks = getMarks();
   console.log(`marks`, marks);
+  const showAction = !isLastStep && !loading;
   return (
     <div className="player-container card">
       <div className="player-icon" onClick={handler}>
-        {!isLastStep && !play && <Play size={20} />}
+        {loading && <Spinner size={20} className="icon-spin" />}
+        {showAction && !play && <Play size={20} />}
         {isLastStep && <Reply size={20} />}
-        {!isLastStep && play && <Pause size={20} />}
+        {showAction && play && <Pause size={20} />}
       </div>
       <div className="player">
         <SliderWithTooltip
           min={0}
-          dots
+          dots={!firstLoad}
           tipFormatter={(v) => formatHour(forecastLabels[v * DAY_SECTIONS])}
           step={1 / DAY_SECTIONS}
           value={step / DAY_SECTIONS}

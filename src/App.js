@@ -1,11 +1,14 @@
-import Map from "./components/map/Map"
-import './App.css';
+import Map from "./components/map/Map";
+import "./App.css";
+import { Suspense } from "react";
 
 function App() {
   return (
-    <div className="App">
-      <Map />
-    </div>
+    <Suspense fallback={"loading..."}>
+      <div className="App">
+        <Map />
+      </div>
+    </Suspense>
   );
 }
 

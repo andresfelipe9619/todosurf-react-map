@@ -15,23 +15,13 @@ export default function SurfingSpots({ map }) {
     if (!map) return;
     const loadSurfingFeatures = async () => {
       try {
-        const geojson = await getSurfingSpots();
-        const data = geojson.features.map((spot) => ({
-          ...spot.properties,
-          position: spot.geometry.coordinates.reverse(),
-        }));
-
-        setSurfingSpots(data);
         const coastLayer = new L.GeoJSON(coast);
-        coastLayer.setStyle(function (feature) {
-          return {
-            fillColor: "#0e0e0e",
-            color: "#222222",
-            fillOpacity: 1,
-          };
-        });
-
+        coastLayer.setStyle(getCoastStyle());
         coastLayer.addTo(map);
+
+        const geojson = await getSurfingSpots();
+        const data = geojson.features.map(mapSpotCoords);
+        setSurfingSpots(data);
       } catch (e) {
         console.log("ERROR", e);
       }
@@ -39,7 +29,7 @@ export default function SurfingSpots({ map }) {
     loadSurfingFeatures();
   }, [map]);
 
-  let popupOptions = {
+  const popupOptions = {
     closeButton: false,
     className: "custom",
     autoClose: true,
@@ -60,4 +50,19 @@ export default function SurfingSpots({ map }) {
       </MarkerClusterGroup>
     </LayersControl.Overlay>
   );
+}
+
+function mapSpotCoords(spot) {
+  return {
+    ...spot.properties,
+    position: spot.geometry.coordinates.reverse(),
+  };
+}
+
+function getCoastStyle() {
+  return {
+    fillColor: "#0e0e0e",
+    color: "#222222",
+    fillOpacity: 1,
+  };
 }

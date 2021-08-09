@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, memo } from "react";
+import React, { useRef, useState, useEffect, memo, lazy } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -14,13 +14,15 @@ import MAP_OPTIONS, {
   HALF_STEP,
   STEPS,
 } from "./map.options";
-import HeatmapLayer from "./layers/Heatmap";
-import Query from "./Query";
-import VelocityLayer from "./layers/Velocity";
-import SurfingSpotsLayer from "./layers/SurfingSpots";
-import Progressbar from "../progressbar/Progressbar";
-import Control from "./Control";
+
 import { getWindData, getWaveData } from "../../api";
+
+const Query = lazy(() => import("./Query"));
+const Control = lazy(() => import("./Control"));
+const Progressbar = lazy(() => import("../progressbar/Progressbar"));
+const SurfingSpotsLayer = lazy(() => import("./layers/SurfingSpots"));
+const HeatmapLayer = lazy(() => import("./layers/Heatmap"));
+const VelocityLayer = lazy(() => import("./layers/Velocity"));
 
 const concat = (data) => (prev) => prev.concat(data);
 
@@ -42,15 +44,19 @@ function Map() {
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
   const [haveQuery, sethaveQuery] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
   const controlRef = useRef(null);
 
   const forecastLabels = waveData.map(([w]) => w.time);
   console.log(`forecastLabels`, forecastLabels);
 
+  function handleNoQuery() {
+    sethaveQuery(false);
+  }
+
   async function laodProgressbarData() {
     try {
-      sethaveQuery(false);
       setLoadingStep("linea de tiempo");
       await Promise.all([
         execParallelJob({
@@ -67,6 +73,7 @@ function Map() {
       console.error(error);
     } finally {
       setLoadingStep(null);
+      setFirstLoad(false);
     }
   }
 
@@ -82,6 +89,7 @@ function Map() {
         console.error(error);
       } finally {
         setLoadingStep(null);
+        console.log(`=== END INIT ===`);
       }
     };
     init();
@@ -93,7 +101,7 @@ function Map() {
     controlRef,
     forecastLabels,
   };
-  console.log(`haveQuery`, haveQuery);
+
   return (
     <>
       <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
@@ -105,7 +113,12 @@ function Map() {
                   <SurfingSpotsLayer {...mapProps} map={map} />;
                   {!haveQuery && (
                     <Control position="bottomleft">
-                      <Progressbar map={map} {...mapProps} />
+                      <Progressbar
+                        map={map}
+                        {...mapProps}
+                        firstLoad={firstLoad}
+                        loadData={laodProgressbarData}
+                      />
                     </Control>
                   )}
                   {!!loadingStep && (
@@ -115,7 +128,7 @@ function Map() {
                       </div>
                     </Control>
                   )}
-                  <Query loadData={laodProgressbarData} />
+                  <Query loadData={handleNoQuery} />
                   {!!waveData.length && (
                     <HeatmapLayer
                       {...mapProps}

@@ -1,6 +1,5 @@
 import L from "leaflet";
-const TILE_LAYER =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
+const TILE_LAYER = "";
 const TILE_LAYER_CONFIG = {
   attribution: "©OpenStreetMap, ©CartoDB",
 };
