@@ -1,11 +1,12 @@
 import L from "leaflet";
 const TILE_LAYER =
-  "http://{s}.sm.mapstack.stamen.com/" +
-  "(toner-lite,$fff[difference],$fff[@23],$fff[hsl-saturation@20])/" +
-  "{z}/{x}/{y}.png";
+  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
 const TILE_LAYER_CONFIG = {
-  attribution: "Tiles &copy; Esri &mdash;",
+  attribution: "©OpenStreetMap, ©CartoDB",
 };
+const LABELS_LAYER =
+  "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png";
+
 const BOUNDS = new L.LatLngBounds(
   new L.LatLng(-25.35452, -80.242609),
   new L.LatLng(70.836104, 25.921826)
@@ -33,6 +34,7 @@ const STEPS = [...Array(MAX_STEP)].map((_, i) => ++i);
 
 export {
   TILE_LAYER,
+  LABELS_LAYER,
   TILE_LAYER_CONFIG,
   WHITE_SMOKE,
   SECONDARY,

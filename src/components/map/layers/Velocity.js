@@ -40,7 +40,6 @@ const Wind = ({ map, controlRef, windData, step }) => {
   const layerExists = map.hasLayer(velocityLayer);
   const reference = controlRef?.current;
 
-  console.log(`layerExists`, layerExists);
   useEffect(() => {
     if (!map || !controlRef) return;
     if (reference && !layerExists) {
@@ -53,13 +52,11 @@ const Wind = ({ map, controlRef, windData, step }) => {
 
   useEffect(() => {
     if (!windData.length) return;
-    console.log(`setting data`, step);
     if (step && layerExists) {
       map.removeLayer(velocityLayer);
       velocityLayer.addTo(map);
     }
     const stepData = windData[step];
-    console.log(`stepData`, stepData);
     velocityLayer.setData(stepData);
     //eslint-disable-next-line
   }, [step, windData]);

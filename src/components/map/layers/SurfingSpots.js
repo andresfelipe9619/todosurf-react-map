@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Marker, Popup, LayersControl } from "react-leaflet";
 import L from "leaflet";
 import { getSurfingSpots } from "../../../api";
-import coast from './custom.geo.json';
+import coast from "./custom.geo.json";
 
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import icon from "./icon";
@@ -25,13 +25,13 @@ export default function SurfingSpots({ map }) {
         const coastLayer = new L.GeoJSON(coast);
         coastLayer.setStyle(function (feature) {
           return {
-            fillColor: "#3d3d3c",
-            color: "#555",
+            fillColor: "#0e0e0e",
+            color: "#222222",
             fillOpacity: 1,
           };
         });
 
-        // coastLayer.addTo(map);
+        coastLayer.addTo(map);
       } catch (e) {
         console.log("ERROR", e);
       }

@@ -7,6 +7,7 @@ import {
 } from "react-leaflet";
 import MAP_OPTIONS, {
   TILE_LAYER,
+  LABELS_LAYER,
   TILE_LAYER_CONFIG,
   INITIAL_STEP,
   MAX_STEP,
@@ -96,24 +97,25 @@ function Map() {
   return (
     <>
       <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
-        {!haveQuery && (
-          <Control position="bottomleft">
-            <Progressbar {...mapProps} />
-          </Control>
-        )}
-        {!!loadingStep && (
-          <Control position="center">
-            <div className="loading-container">
-              <h2>Cargando {loadingStep || "spots"} ...</h2>
-            </div>
-          </Control>
-        )}
-        <Query loadData={laodProgressbarData} />
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
               return (
                 <>
+                  <SurfingSpotsLayer {...mapProps} map={map} />;
+                  {!haveQuery && (
+                    <Control position="bottomleft">
+                      <Progressbar map={map} {...mapProps} />
+                    </Control>
+                  )}
+                  {!!loadingStep && (
+                    <Control position="center">
+                      <div className="loading-container">
+                        <h2>Cargando {loadingStep || "spots"} ...</h2>
+                      </div>
+                    </Control>
+                  )}
+                  <Query loadData={laodProgressbarData} />
                   {!!waveData.length && (
                     <HeatmapLayer
                       {...mapProps}
@@ -121,7 +123,6 @@ function Map() {
                       heatmapData={waveData}
                     />
                   )}
-                  <SurfingSpotsLayer {...mapProps} map={map} />
                   {!!windData.length && (
                     <VelocityLayer
                       {...mapProps}
@@ -136,6 +137,7 @@ function Map() {
           <LayersControl.BaseLayer checked name="OpenStreetMap">
             <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
           </LayersControl.BaseLayer>
+          <TileLayer url={LABELS_LAYER} pane="tooltipPane" />
         </LayersControl>
       </MapContainer>
     </>

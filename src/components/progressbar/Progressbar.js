@@ -15,7 +15,7 @@ import {
 import "rc-slider/assets/index.css";
 const SliderWithTooltip = createSliderWithTooltip(Slider);
 
-export default function Progressbar({ step, setStep, forecastLabels }) {
+export default function Progressbar({ step, setStep, forecastLabels, map }) {
   const [play, setPlay] = useState(false);
   const [interval, setProgressInterval] = useState(null);
   const isLastStep = step === MAX_STEP;
@@ -39,8 +39,6 @@ export default function Progressbar({ step, setStep, forecastLabels }) {
     setPlay(false);
     clearInterval(interval);
   }
-
-  const stopPropagation = (e) => e.stopPropagation();
 
   useEffect(() => {
     return () => {
@@ -72,22 +70,23 @@ export default function Progressbar({ step, setStep, forecastLabels }) {
         {isLastStep && <Reply size={20} />}
         {!isLastStep && play && <Pause size={20} />}
       </div>
-      <div
-        className="player"
-        onClick={stopPropagation}
-        onMouseMove={stopPropagation}
-      >
+      <div className="player">
         <SliderWithTooltip
           min={0}
-          tipFormatter={(v) =>
-            formatHour(forecastLabels[v * DAY_SECTIONS])
-          }
+          dots
+          tipFormatter={(v) => formatHour(forecastLabels[v * DAY_SECTIONS])}
           step={1 / DAY_SECTIONS}
           value={step / DAY_SECTIONS}
           max={MAX_STEP / DAY_SECTIONS}
           marks={marks}
           onChange={handleChange}
           dotStyle={dotStyle}
+          onBeforeChange={() => {
+            map.dragging.disable();
+          }}
+          onAfterChange={() => {
+            map.dragging.enable();
+          }}
           activeDotStyle={activeDotStyle}
           railStyle={{ backgroundColor: WHITE_SMOKE, height: 10 }}
           trackStyle={{ backgroundColor: PRIMARY, height: 10 }}
@@ -125,16 +124,17 @@ function formatDate(date, long = true) {
 
 const dotStyle = {
   borderColor: PRIMARY,
-  marginBottom: -5,
-  height: 12,
-  width: 12,
+  marginBottom: -6,
+  height: 14,
+  width: 14,
 };
 
 const activeDotStyle = {
   background: SECONDARY,
-  height: 14,
-  width: 14,
-  marginBottom: -5,
+  height: 16,
+  width: 16,
+  marginBottom: -7,
+  marginLeft: -8,
 };
 
 const handleStyle = {
