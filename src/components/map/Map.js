@@ -12,6 +12,7 @@ import MAP_OPTIONS, {
   INITIAL_STEP,
   MAX_STEP,
   HALF_STEP,
+  DAY_SECTIONS,
   STEPS,
 } from "./map.options";
 
@@ -46,10 +47,8 @@ function Map() {
   const [haveQuery, sethaveQuery] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
+  const [forecastLabels, setForecastLabels] = useState([]);
   const controlRef = useRef(null);
-
-  const forecastLabels = waveData.map(([w]) => w.time);
-  console.log(`forecastLabels`, forecastLabels);
 
   function handleNoQuery() {
     sethaveQuery(false);
@@ -82,9 +81,25 @@ function Map() {
       console.log(`=== INIT ===`);
       try {
         setLoadingStep("capas");
-        const [wave, wind] = await Promise.all([getWaveData(), getWindData()]);
-        setWaveData([mapWaveData(wave)]);
+        const [waveResponse, wind] = await Promise.all([
+          getWaveData(),
+          getWindData(),
+        ]);
+        const wave = mapWaveData(waveResponse);
+        setWaveData([wave]);
         setWindData([wind]);
+        const [firstWave] = wave;
+        console.log(`firstWave`, firstWave);
+        if (!firstWave?.time) return;
+        const hourRange = 24 / DAY_SECTIONS;
+        const startDate = new Date(firstWave.time);
+        const labels = [...Array(MAX_STEP + 1)].reduce((acc, _, i) => {
+          let stepTime = hourRange * i;
+          acc.push(addHoursToDate(startDate, stepTime));
+          return acc;
+        }, []);
+        console.log(`labels`, labels);
+        setForecastLabels(labels);
       } catch (error) {
         console.error(error);
       } finally {
@@ -102,16 +117,19 @@ function Map() {
     forecastLabels,
   };
 
+  const showBar = !haveQuery && !!waveData.length && windData.length;
+
   return (
     <>
       <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
+        <Query loadData={handleNoQuery} />;
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
               return (
                 <>
                   <SurfingSpotsLayer {...mapProps} map={map} />;
-                  {!haveQuery && (
+                  {showBar && (
                     <Control position="bottomleft">
                       <Progressbar
                         map={map}
@@ -128,7 +146,6 @@ function Map() {
                       </div>
                     </Control>
                   )}
-                  <Query loadData={handleNoQuery} />
                   {!!waveData.length && (
                     <HeatmapLayer
                       {...mapProps}
@@ -155,6 +172,10 @@ function Map() {
       </MapContainer>
     </>
   );
+}
+
+function addHoursToDate(date, hours) {
+  return new Date(new Date(date).setHours(date.getHours() + hours));
 }
 
 function mapWaveData(data) {

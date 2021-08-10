@@ -28,9 +28,8 @@
 }
 
 .player-container {
-  padding: 10px;
   width: 60vw;
-  padding: 8px 24px;
+  padding: 8px 24px 10px 4px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -135,8 +134,8 @@ input[type="radio"] {
 }
 
 .icon-spin {
-  -webkit-animation: icon-spin 2s infinite linear;
-  animation: icon-spin 2s infinite linear;
+  -webkit-animation: icon-spin 1.5s infinite linear;
+  animation: icon-spin 1.5s infinite linear;
 }
 
 @-webkit-keyframes icon-spin {

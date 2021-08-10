@@ -59,7 +59,7 @@ export default function Progressbar({
     return [...Array(marksCount + 1)]
       .map((_, i) => i)
       .reduce((acc, mark) => {
-        let item = forecastLabels[mark];
+        let item = forecastLabels[DAY_SECTIONS * mark];
         acc[mark] = (
           <strong className="mark">
             {item ? formatDate(item, false) : ""}
@@ -96,6 +96,7 @@ export default function Progressbar({
         <SliderWithTooltip
           min={0}
           dots={!firstLoad}
+          disabled={!!firstLoad}
           tipFormatter={(v) => formatHour(forecastLabels[v * DAY_SECTIONS])}
           step={1 / DAY_SECTIONS}
           value={step / DAY_SECTIONS}
@@ -130,17 +131,26 @@ const longFormatOptions = {
 const shortFormatOptions = {
   weekday: "long",
   day: "numeric",
-  hour: "numeric",
+};
+
+const capitalize = (s) => {
+  if (typeof s !== "string") return "";
+  return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
 function formatHour(date) {
-  return new Date(date).toLocaleString("es-ES", { hour: "2-digit" });
+  return new Date(date).toLocaleString("es-ES", {
+    hour: "2-digit",
+    hour12: true,
+  });
 }
 
 function formatDate(date, long = true) {
-  return new Date(date).toLocaleString(
-    "es-ES",
-    long ? longFormatOptions : shortFormatOptions
+  return capitalize(
+    new Date(date).toLocaleString(
+      "es-ES",
+      long ? longFormatOptions : shortFormatOptions
+    )
   );
 }
 
