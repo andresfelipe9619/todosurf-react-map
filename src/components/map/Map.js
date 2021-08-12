@@ -4,9 +4,11 @@ import {
   TileLayer,
   LayersControl,
   MapConsumer,
+  useMapEvents,
 } from "react-leaflet";
 import MAP_OPTIONS, {
   TILE_LAYER,
+  MAX_ZOOM_MAP,
   LABELS_LAYER,
   TILE_LAYER_CONFIG,
   INITIAL_STEP,
@@ -44,6 +46,7 @@ function Map() {
   const [windData, setWindData] = useState([]);
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
+  const [zoom, setZoom] = useState(0);
   const [haveQuery, sethaveQuery] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
@@ -110,19 +113,21 @@ function Map() {
     init();
   }, []);
 
+  const showBar = !haveQuery && !!waveData.length && windData.length;
+  const changeBaseLayer = zoom + 2 > MAX_ZOOM_MAP;
   const mapProps = {
     step,
     setStep,
     controlRef,
     forecastLabels,
+    changeBaseLayer,
   };
-
-  const showBar = !haveQuery && !!waveData.length && windData.length;
 
   return (
     <>
       <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
-        <Query loadData={handleNoQuery} />;
+        <Query loadData={handleNoQuery} />
+        <EventHandler setZoom={setZoom} />
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
@@ -165,13 +170,24 @@ function Map() {
             }}
           </MapConsumer>
           <LayersControl.BaseLayer checked name="OpenStreetMap">
-            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
+            {changeBaseLayer && (
+              <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
+            )}
           </LayersControl.BaseLayer>
           <TileLayer url={LABELS_LAYER} pane="tooltipPane" />
         </LayersControl>
       </MapContainer>
     </>
   );
+}
+
+function EventHandler({ setZoom }) {
+  const mapEvents = useMapEvents({
+    zoomend: () => {
+      setZoom(mapEvents.getZoom());
+    },
+  });
+  return null;
 }
 
 function addHoursToDate(date, hours) {

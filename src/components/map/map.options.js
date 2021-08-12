@@ -1,10 +1,11 @@
 import L from "leaflet";
-const TILE_LAYER = "";
+const TILE_LAYER =
+  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
 const TILE_LAYER_CONFIG = {
   attribution: "©OpenStreetMap, ©CartoDB",
 };
 const LABELS_LAYER =
-  "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png";
+  "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png";
 
 const BOUNDS = new L.LatLngBounds(
   new L.LatLng(-25.35452, -80.242609),
@@ -35,6 +36,7 @@ export {
   TILE_LAYER,
   LABELS_LAYER,
   TILE_LAYER_CONFIG,
+  MAX_ZOOM_MAP,
   WHITE_SMOKE,
   SECONDARY,
   PRIMARY,

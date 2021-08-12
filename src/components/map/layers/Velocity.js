@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import "leaflet-velocity";
 import L from "leaflet";
+import { FaWind } from "react-icons/fa";
+import { getControlTitle } from "../Control";
 
 const defaultColorScale = [
   "rgb(36,104,180)",
@@ -37,7 +39,7 @@ const VELOCITY_CONFIG = {
 const velocityLayer = L.velocityLayer(VELOCITY_CONFIG);
 
 const Wind = ({ map, controlRef, windData, step }) => {
-  const layerName = "Wind";
+  const layerName = getControlTitle("Wind", FaWind);
   const layerExists = map.hasLayer(velocityLayer);
   const reference = controlRef?.current;
 

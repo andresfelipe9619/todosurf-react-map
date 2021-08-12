@@ -1,3 +1,5 @@
+import ReactDOMServer from "react-dom/server";
+
 const POSITION_CLASSES = {
   bottomleft: "leaflet-bottom leaflet-left",
   bottomright: "leaflet-bottom leaflet-right",
@@ -27,4 +29,11 @@ const Control = ({ children, position }) => {
   );
 };
 
+export const getControlTitle = (title, Icon) =>
+  ReactDOMServer.renderToString(
+    <Icon
+      size={28}
+      style={{ marginRight: 10, marginBottom: -6, marginTop: 4 }}
+    />
+  ) + title;
 export default Control;

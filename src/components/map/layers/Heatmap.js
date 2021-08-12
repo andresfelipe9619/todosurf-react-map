@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import HeatmapOverlay from "leaflet-heatmap";
+import { GiWaveSurfer } from "react-icons/gi";
+import { getControlTitle } from "../Control";
 
 const HEATMAP_CONFIG = {
   radius: 3,
@@ -13,7 +15,7 @@ const HEATMAP_CONFIG = {
 const heatmapLayer = new HeatmapOverlay(HEATMAP_CONFIG);
 
 const Heatmap = ({ map, step, heatmapData, controlRef }) => {
-  const layerName = "Waves";
+  const layerName = getControlTitle("Waves", GiWaveSurfer);
   const layerExists = map.hasLayer(heatmapLayer);
   const reference = controlRef?.current;
   useEffect(() => {

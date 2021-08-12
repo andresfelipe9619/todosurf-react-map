@@ -2,23 +2,20 @@ import { useEffect, useState } from "react";
 import { Marker, Popup, LayersControl } from "react-leaflet";
 import L from "leaflet";
 import { getSurfingSpots } from "../../../api";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import { GiSurfBoard } from "react-icons/gi";
+import { getControlTitle } from "../Control";
+import icon from "./icon";
 import coast from "./custom.geo.json";
 
-import MarkerClusterGroup from "react-leaflet-markercluster";
-import icon from "./icon";
-
-export default function SurfingSpots({ map }) {
-  const layerName = "Spots";
+export default function SurfingSpots({ map, changeBaseLayer }) {
+  const layerName = getControlTitle("Spots", GiSurfBoard);
   const [surfingSpots, setSurfingSpots] = useState([]);
 
   useEffect(() => {
     if (!map) return;
     const loadSurfingFeatures = async () => {
       try {
-        const coastLayer = new L.GeoJSON(coast);
-        coastLayer.setStyle(getCoastStyle());
-        coastLayer.addTo(map);
-
         const geojson = await getSurfingSpots();
         const data = geojson.features.map(mapSpotCoords);
         setSurfingSpots(data);
@@ -28,6 +25,20 @@ export default function SurfingSpots({ map }) {
     };
     loadSurfingFeatures();
   }, [map]);
+
+  useEffect(() => {
+    if (!map) return;
+    const coastLayer = new L.geoJson(coast);
+
+    if (changeBaseLayer) {
+      console.log(`removing coast...`);
+      map.removeLayer(coastLayer);
+    } else {
+      console.log(`adding coast...`);
+      coastLayer.setStyle(getCoastStyle());
+      coastLayer.addTo(map);
+    }
+  }, [map, changeBaseLayer]);
 
   const popupOptions = {
     closeButton: false,
@@ -41,7 +52,7 @@ export default function SurfingSpots({ map }) {
         {surfingSpots.map((spot, i) => (
           <Marker key={i} position={spot.position} icon={icon()}>
             <Popup {...popupOptions}>
-              <div class="wave-link">
+              <div className="wave-link">
                 <a href={spot.enlace}>{spot.nombre}</a>
               </div>
             </Popup>
@@ -61,7 +72,7 @@ function mapSpotCoords(spot) {
 
 function getCoastStyle() {
   return {
-    fillColor: "#0e0e0e",
+    fillColor: "#0a0a0a",
     color: "#222222",
     fillOpacity: 1,
   };
