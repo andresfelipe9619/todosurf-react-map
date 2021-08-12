@@ -28,6 +28,7 @@ const VELOCITY_CONFIG = {
     emptyString: "No wind data",
     showCardinal: true,
   },
+  velocityScale: 0.009,
   opacity: 1,
   colorScale: defaultColorScale,
   maxVelocity: 15,

@@ -25,9 +25,9 @@ const MAP_OPTIONS = {
 const WHITE_SMOKE = "#eee";
 const SECONDARY = "#ffc50b";
 const PRIMARY = "#f5821f";
-const MAX_STEP = 8;
+const MAX_STEP = 16;
 const INITIAL_STEP = 0;
-const DAY_SECTIONS = 8;
+const DAY_SECTIONS = 4;
 const HALF_STEP = Math.floor(MAX_STEP / 2);
 const STEPS = [...Array(MAX_STEP)].map((_, i) => ++i);
 
