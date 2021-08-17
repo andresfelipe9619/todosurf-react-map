@@ -19,6 +19,7 @@ import MAP_OPTIONS, {
 } from "./map.options";
 
 import { getWindData, getWaveData } from "../../api";
+import Legend from "./Legend";
 
 const Query = lazy(() => import("./Query"));
 const Control = lazy(() => import("./Control"));
@@ -26,6 +27,7 @@ const Progressbar = lazy(() => import("../progressbar/Progressbar"));
 const SurfingSpotsLayer = lazy(() => import("./layers/SurfingSpots"));
 const HeatmapLayer = lazy(() => import("./layers/Heatmap"));
 const VelocityLayer = lazy(() => import("./layers/Velocity"));
+const CoastLayer = lazy(() => import("./layers/Coast"));
 
 const concat = (data) => (prev) => prev.concat(data);
 
@@ -114,7 +116,12 @@ function Map() {
   }, []);
 
   const showBar = !haveQuery && !!waveData.length && windData.length;
-  const changeBaseLayer = zoom + 2 > MAX_ZOOM_MAP;
+  const changeBaseLayer = zoom + 4 > MAX_ZOOM_MAP;
+  const heights = waveData.flatMap((w) => w).map((w) => w.value);
+  const maxHeight = getMax(heights);
+  const minHeight = getMin(heights);
+  console.log(`maxHeight`, maxHeight);
+  console.log(`minHeight`, minHeight);
   const mapProps = {
     step,
     setStep,
@@ -134,6 +141,7 @@ function Map() {
               return (
                 <>
                   <SurfingSpotsLayer {...mapProps} map={map} />;
+                  {!changeBaseLayer && <CoastLayer {...mapProps} map={map} />}
                   {showBar && (
                     <Control position="bottomleft">
                       <Progressbar
@@ -152,11 +160,17 @@ function Map() {
                     </Control>
                   )}
                   {!!waveData.length && (
-                    <HeatmapLayer
-                      {...mapProps}
-                      map={map}
-                      heatmapData={waveData}
-                    />
+                    <>
+                      <Control position="topright">
+                        <Legend max={maxHeight} min={minHeight} />
+                      </Control>
+                      <HeatmapLayer
+                        {...mapProps}
+                        map={map}
+                        maxHeight={maxHeight}
+                        heatmapData={waveData}
+                      />
+                    </>
                   )}
                   {!!windData.length && (
                     <VelocityLayer
@@ -169,11 +183,9 @@ function Map() {
               );
             }}
           </MapConsumer>
-          <LayersControl.BaseLayer checked name="OpenStreetMap">
-            {changeBaseLayer && (
-              <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
-            )}
-          </LayersControl.BaseLayer>
+          {changeBaseLayer && (
+            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} />
+          )}
           <TileLayer url={LABELS_LAYER} pane="tooltipPane" />
         </LayersControl>
       </MapContainer>
@@ -192,6 +204,26 @@ function EventHandler({ setZoom }) {
 
 function addHoursToDate(date, hours) {
   return new Date(new Date(date).setHours(date.getHours() + hours));
+}
+
+function getMax(array) {
+  let max = array[0];
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] > max) {
+      max = array[i];
+    }
+  }
+  return max;
+}
+
+function getMin(array) {
+  let min = array[0];
+  for (let i = 1; i < array.length; i++) {
+    if (array[i] < min) {
+      min = array[i];
+    }
+  }
+  return min;
 }
 
 function mapWaveData(data) {

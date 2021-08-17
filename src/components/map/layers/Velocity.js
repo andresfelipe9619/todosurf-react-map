@@ -3,6 +3,7 @@ import "leaflet-velocity";
 import L from "leaflet";
 import { FaWind } from "react-icons/fa";
 import { getControlTitle } from "../Control";
+const isMobile = L.Browser.mobile;
 
 const defaultColorScale = [
   "rgb(36,104,180)",
@@ -23,7 +24,7 @@ const defaultColorScale = [
 ];
 
 const VELOCITY_CONFIG = {
-  displayValues: true,
+  displayValues: !isMobile,
   displayOptions: {
     velocityType: "GBR Wind",
     position: "bottomright",

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import L from "leaflet";
 import {
   FaPlay as Play,
   FaPause as Pause,
@@ -15,6 +16,7 @@ import {
 } from "../map/map.options";
 import "rc-slider/assets/index.css";
 const SliderWithTooltip = createSliderWithTooltip(Slider);
+const isMobile = L.Browser.mobile;
 
 export default function Progressbar({
   map,
@@ -84,6 +86,8 @@ export default function Progressbar({
   const marks = getMarks();
   console.log(`marks`, marks);
   const showAction = !isLastStep && !loading;
+  console.log(`isMobile`, isMobile);
+  const showDots = !firstLoad && !isMobile;
   return (
     <div className="player-container card">
       <div className="player-icon" onClick={handler}>
@@ -95,7 +99,7 @@ export default function Progressbar({
       <div className="player">
         <SliderWithTooltip
           min={0}
-          dots={!firstLoad}
+          dots={showDots}
           disabled={!!firstLoad}
           tipFormatter={(v) => formatHour(forecastLabels[v * DAY_SECTIONS])}
           step={1 / DAY_SECTIONS}

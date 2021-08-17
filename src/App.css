@@ -23,6 +23,9 @@
 .center {
   margin-left: 40vw;
 }
+.center-v {
+  margin-top: 20vh;
+}
 
 .leaflet-bar {
   border-radius: 4px;
@@ -45,6 +48,28 @@
 }
 .rc-slider-mark-text {
   width: 100px;
+}
+
+.leaflet-control-velocity {
+  color: #fff;
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  line-height: 18px;
+  color: #fff;
+}
+
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+}
+
+.legend-item {
+  margin: 8px;
 }
 
 .player-icon {
@@ -137,6 +162,16 @@ input[type="radio"] {
 .icon-spin {
   -webkit-animation: icon-spin 1.5s infinite linear;
   animation: icon-spin 1.5s infinite linear;
+}
+
+@media only screen and (max-width: 600px) {
+  /*Big smartphones [426px -> 600px]*/
+  .leaflet-control-velocity {
+    display: none;
+  }
+  .player-container {
+    width: 90vw;
+  }
 }
 
 @-webkit-keyframes icon-spin {
