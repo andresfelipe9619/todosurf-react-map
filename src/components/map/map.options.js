@@ -1,6 +1,7 @@
 import L from "leaflet";
 const TILE_LAYER =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
+  "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+// "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
 const TILE_LAYER_CONFIG = {
   attribution: "©OpenStreetMap, ©CartoDB",
 };

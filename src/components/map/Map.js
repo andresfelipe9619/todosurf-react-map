@@ -61,7 +61,7 @@ function Map() {
 
   async function laodProgressbarData() {
     try {
-      setLoadingStep("linea de tiempo");
+      setLoadingStep("timeline");
       await Promise.all([
         execParallelJob({
           get: getWindData,
@@ -85,7 +85,7 @@ function Map() {
     const init = async () => {
       console.log(`=== INIT ===`);
       try {
-        setLoadingStep("capas");
+        setLoadingStep("layers");
         const [waveResponse, wind] = await Promise.all([
           getWaveData(),
           getWindData(),
@@ -155,15 +155,17 @@ function Map() {
                   {!!loadingStep && (
                     <Control position="center">
                       <div className="loading-container">
-                        <h2>Cargando {loadingStep || "spots"} ...</h2>
+                        <h2>Loading {loadingStep || "spots"} ...</h2>
                       </div>
                     </Control>
                   )}
                   {!!waveData.length && (
                     <>
-                      <Control position="topright">
-                        <Legend max={maxHeight} min={minHeight} />
-                      </Control>
+                      {!changeBaseLayer && (
+                        <Control position="topright">
+                          <Legend max={maxHeight} min={minHeight} />
+                        </Control>
+                      )}
                       <HeatmapLayer
                         {...mapProps}
                         map={map}

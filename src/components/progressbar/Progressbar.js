@@ -84,13 +84,11 @@ export default function Progressbar({
 
   const handler = isLastStep ? start : play ? stop : start;
   const marks = getMarks();
-  console.log(`marks`, marks);
   const showAction = !isLastStep && !loading;
-  console.log(`isMobile`, isMobile);
   const showDots = !firstLoad && !isMobile;
   return (
     <div className="player-container card">
-      <div className="player-icon" onClick={handler}>
+      <div className="player-icon" onClick={!loading && handler}>
         {loading && <Spinner size={20} className="icon-spin" />}
         {showAction && !play && <Play size={20} />}
         {isLastStep && <Reply size={20} />}
@@ -108,12 +106,8 @@ export default function Progressbar({
           marks={marks}
           onChange={handleChange}
           dotStyle={dotStyle}
-          onBeforeChange={() => {
-            map.dragging.disable();
-          }}
-          onAfterChange={() => {
-            map.dragging.enable();
-          }}
+          onBeforeChange={() => map.dragging.disable()}
+          onAfterChange={() => map.dragging.enable()}
           activeDotStyle={activeDotStyle}
           railStyle={{ backgroundColor: WHITE_SMOKE, height: 10 }}
           trackStyle={{ backgroundColor: PRIMARY, height: 10 }}
@@ -133,7 +127,7 @@ const longFormatOptions = {
   minute: "numeric",
 };
 const shortFormatOptions = {
-  weekday: "long",
+  weekday: "short",
   day: "numeric",
 };
 
@@ -143,7 +137,7 @@ const capitalize = (s) => {
 };
 
 function formatHour(date) {
-  return new Date(date).toLocaleString("es-ES", {
+  return new Date(date).toLocaleString("en-US", {
     hour: "2-digit",
     hour12: true,
   });
@@ -152,7 +146,7 @@ function formatHour(date) {
 function formatDate(date, long = true) {
   return capitalize(
     new Date(date).toLocaleString(
-      "es-ES",
+      "en-US",
       long ? longFormatOptions : shortFormatOptions
     )
   );

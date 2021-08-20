@@ -54,6 +54,20 @@
   color: #fff;
 }
 
+.gradient {
+  height: 100px;
+  width: 20px;
+  background: linear-gradient(#084881, #73d037, #d6e429, #f74609);
+}
+
+.legend-container {
+  display: flex;
+}
+
+.legend-container h5 {
+  width: 100%;
+}
+
 .legend {
   display: flex;
   flex-direction: column;
@@ -61,11 +75,8 @@
   color: #fff;
 }
 
-.legend i {
-  width: 18px;
-  height: 18px;
-  float: left;
-  margin-right: 8px;
+.padding {
+  padding: 8px;
 }
 
 .legend-item {
@@ -145,7 +156,7 @@
 .leaflet-touch .leaflet-control-layers,
 .leaflet-touch .leaflet-bar {
   border-radius: 4px;
-  background-color: rgba(85, 85, 85, 0.4);
+  background-color: rgba(85, 85, 85, 0.6);
   font-size: 14px;
   backdrop-filter: saturate(180%) blur(3px);
   font-weight: 700;
