@@ -26,7 +26,7 @@ const defaultColorScale = [
 const VELOCITY_CONFIG = {
   displayValues: !isMobile,
   displayOptions: {
-    velocityType: "GBR Wind",
+    velocityType: "Wind",
     position: "bottomright",
     emptyString: "No wind data",
     showCardinal: true,

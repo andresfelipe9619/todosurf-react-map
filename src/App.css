@@ -32,7 +32,7 @@
 }
 
 .player-container {
-  width: 60vw;
+  width: 100%;
   padding: 8px 24px 10px 4px;
   display: flex;
   justify-content: space-around;
@@ -46,11 +46,22 @@
   align-items: center;
   box-sizing: border-box;
 }
+
 .rc-slider-mark-text {
   width: 100px;
 }
 
+.leaflet-bottom > .leaflet-control.leaflet-bar {
+  display: flex;
+  width: 70%;
+}
+
+.leaflet-bottom.leaflet-left {
+  width: 100%;
+}
+
 .leaflet-control-velocity {
+  width: 70%;
   color: #fff;
 }
 
@@ -173,6 +184,13 @@ input[type="radio"] {
 .icon-spin {
   -webkit-animation: icon-spin 1.5s infinite linear;
   animation: icon-spin 1.5s infinite linear;
+}
+
+@media only screen and (max-width: 900px) {
+  .leaflet-control-velocity {
+    width: 40%;
+    color: #fff;
+  }
 }
 
 @media only screen and (max-width: 600px) {
