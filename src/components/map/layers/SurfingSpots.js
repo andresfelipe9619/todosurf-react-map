@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Marker, Popup, LayersControl } from "react-leaflet";
 import { getSurfingSpots } from "../../../api";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -6,12 +6,16 @@ import { GiSurfBoard } from "react-icons/gi";
 import { getControlTitle } from "../Control";
 import icon from "./icon";
 
-export default function SurfingSpots({ map }) {
+export default function SurfingSpots({
+  map,
+  surfingSpots,
+  setSurfingSpots,
+  singleSpot = false,
+}) {
   const layerName = getControlTitle("Spots", GiSurfBoard);
-  const [surfingSpots, setSurfingSpots] = useState([]);
-
+  console.log(`surfingSpots`, surfingSpots);
   useEffect(() => {
-    if (!map) return;
+    if (!map || singleSpot) return;
     const loadSurfingFeatures = async () => {
       try {
         const geojson = await getSurfingSpots();
@@ -22,7 +26,8 @@ export default function SurfingSpots({ map }) {
       }
     };
     loadSurfingFeatures();
-  }, [map]);
+    //eslint-disable-next-line
+  }, [map, singleSpot]);
 
   const popupOptions = {
     closeButton: false,

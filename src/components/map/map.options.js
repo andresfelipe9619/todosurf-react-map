@@ -9,17 +9,19 @@ const LABELS_LAYER =
   "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png";
 
 const BOUNDS = new L.LatLngBounds(
-  new L.LatLng(-25.35452, -80.242609),
-  new L.LatLng(70.836104, 25.921826)
+  new L.LatLng(-90, -180),
+  new L.LatLng(90, 180)
 );
 const VISCOSITY = 0.1;
 const MAX_ZOOM_MAP = 12;
-const INITIAL_ZOOM = 4;
+const INITIAL_ZOOM = 3;
 const MAP_OPTIONS = {
-  zoom: INITIAL_ZOOM,
+  tap: false,
+  zoom: INITIAL_ZOOM + 1,
   center: BOUNDS.getCenter(),
   minZoom: INITIAL_ZOOM - 1,
   maxZoom: MAX_ZOOM_MAP,
+  maxBounds: BOUNDS,
   preferCanvas: true,
   maxBoundsViscosity: VISCOSITY,
 };
