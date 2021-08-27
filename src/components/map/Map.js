@@ -72,7 +72,7 @@ function Map() {
       const [firstWave] = wave;
       if (!firstWave?.time) return;
       const hourRange = 24 / DAY_SECTIONS;
-      const startDate = new Date(firstWave.time);
+      const startDate = new Date(firstWave.time.replace(/-/g, "/"));
       const labels = [...Array(MAX_STEP + 1)].reduce((acc, _, i) => {
         let stepTime = hourRange * i;
         acc.push(addHoursToDate(startDate, stepTime));
