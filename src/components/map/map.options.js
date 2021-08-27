@@ -21,7 +21,6 @@ const MAP_OPTIONS = {
   center: BOUNDS.getCenter(),
   minZoom: INITIAL_ZOOM - 1,
   maxZoom: MAX_ZOOM_MAP,
-  maxBounds: BOUNDS,
   preferCanvas: true,
   maxBoundsViscosity: VISCOSITY,
 };
@@ -43,6 +42,7 @@ export {
   WHITE_SMOKE,
   SECONDARY,
   PRIMARY,
+  BOUNDS,
   MAX_STEP,
   DAY_SECTIONS,
   INITIAL_STEP,

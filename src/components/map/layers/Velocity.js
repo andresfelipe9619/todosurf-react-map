@@ -39,14 +39,14 @@ const VELOCITY_CONFIG = {
 
 const velocityLayer = L.velocityLayer(VELOCITY_CONFIG);
 
-const Wind = ({ map, controlRef, windData, step }) => {
+const Wind = ({ map, controlRef, windData, step, showOverlay }) => {
   const layerName = getControlTitle("Wind", FaWind);
   const layerExists = map.hasLayer(velocityLayer);
   const reference = controlRef?.current;
 
   useEffect(() => {
     if (!map || !controlRef) return;
-    if (reference && !layerExists) {
+    if (reference && !layerExists && showOverlay) {
       reference.addOverlay(velocityLayer, layerName);
     }
     !layerExists && velocityLayer.addTo(map);

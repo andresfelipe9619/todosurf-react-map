@@ -8,12 +8,13 @@ import icon from "./icon";
 
 export default function SurfingSpots({
   map,
+  showBar,
+  singleSpot,
   surfingSpots,
   setSurfingSpots,
-  singleSpot = false,
 }) {
   const layerName = getControlTitle("Spots", GiSurfBoard);
-  console.log(`surfingSpots`, surfingSpots);
+
   useEffect(() => {
     if (!map || singleSpot) return;
     const loadSurfingFeatures = async () => {
@@ -35,19 +36,25 @@ export default function SurfingSpots({
     autoClose: true,
   };
 
+  let content = (
+    <MarkerClusterGroup>
+      {surfingSpots.map((spot, i) => (
+        <Marker key={i} position={spot.position} icon={icon()}>
+          <Popup {...popupOptions}>
+            <div className="wave-link">
+              <a href={spot.enlace}>{spot.nombre}</a>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MarkerClusterGroup>
+  );
+
+  if (!showBar) return content;
+
   return (
     <LayersControl.Overlay checked name={layerName}>
-      <MarkerClusterGroup>
-        {surfingSpots.map((spot, i) => (
-          <Marker key={i} position={spot.position} icon={icon()}>
-            <Popup {...popupOptions}>
-              <div className="wave-link">
-                <a href={spot.enlace}>{spot.nombre}</a>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MarkerClusterGroup>
+      {content}
     </LayersControl.Overlay>
   );
 }

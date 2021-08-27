@@ -17,7 +17,7 @@ import MAP_OPTIONS, {
   DAY_SECTIONS,
   STEPS,
 } from "./map.options";
-import { isNullishValue } from "./Query";
+import { isNullishValue, calculateBounds } from "./Query";
 import { getWindData, getWaveData } from "../../api";
 import Legend from "./Legend";
 
@@ -49,7 +49,7 @@ function Map() {
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
   const [zoom, setZoom] = useState(0);
-  const [showSpots, setShowSpots] = useState(false);
+  const [userLocate, setUserLocate] = useState(null);
   const [haveQuery, sethaveQuery] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
@@ -60,6 +60,7 @@ function Map() {
 
   const init = async () => {
     try {
+      console.log(`Initilizing progressbar...`);
       setLoadingStep("layers");
       const [waveResponse, wind] = await Promise.all([
         getWaveData(),
@@ -86,12 +87,13 @@ function Map() {
     }
   };
 
-  async function loadData({ step, query = false, spot = true } = {}) {
+  async function loadData({ step, query = false, locate } = {}) {
     console.log(`Loading data...`);
     sethaveQuery(query);
-    if (spot) setShowSpots(spot);
-    if (isNullishValue(step) && !spot) return init();
-    console.log(`WIND`);
+    setUserLocate(locate);
+    // If we dont get any locate query or we get it as true,
+    // we have to show the spots layer
+    if (isNullishValue(step) && isNullishValue(locate)) return init();
     const wind = await getWindData(step);
     setWindData([wind]);
   }
@@ -126,6 +128,7 @@ function Map() {
 
   const mapProps = {
     step,
+    showBar,
     setStep,
     controlRef,
     forecastLabels,
@@ -136,17 +139,17 @@ function Map() {
     <>
       <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
         <Query loadData={loadData} setSurfingSpots={setSurfingSpots} />
-        <EventHandler setZoom={setZoom} />
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
               return (
                 <>
-                  {showSpots && (
+                  <EventHandler {...{ map, setZoom, setSurfingSpots }} />
+                  {userLocate !== false && (
                     <SurfingSpotsLayer
                       {...mapProps}
                       map={map}
-                      singleSpot={surfingSpots.length === 1}
+                      singleSpot={userLocate}
                       {...{ surfingSpots, setSurfingSpots }}
                     />
                   )}
@@ -188,13 +191,14 @@ function Map() {
                       {...mapProps}
                       map={map}
                       windData={windData}
+                      showOverlay={showBar}
                     />
                   )}
                 </>
               );
             }}
           </MapConsumer>
-          {changeBaseLayer && (
+          {showBar && changeBaseLayer && (
             <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} noWrap />
           )}
           <TileLayer url={LABELS_LAYER} pane="tooltipPane" noWrap />
@@ -204,10 +208,26 @@ function Map() {
   );
 }
 
-function EventHandler({ setZoom }) {
+function EventHandler({ map, setZoom, setSurfingSpots, setShowSpots }) {
   const mapEvents = useMapEvents({
     zoomend: () => {
-      setZoom(mapEvents.getZoom());
+      const zoom = mapEvents.getZoom();
+      setZoom(zoom);
+    },
+    locationfound: (location) => {
+      console.log("location found:", location);
+      const { latitude: lat, longitude: lon } = location;
+      const zoom = mapEvents.getZoom();
+      setSurfingSpots([
+        {
+          nombre: "Current location",
+          position: [lat, lon],
+        },
+      ]);
+      calculateBounds({ map, lat, lon, zoom });
+    },
+    locationerror: (error) => {
+      console.log("location error:", error);
     },
   });
   return null;
