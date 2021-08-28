@@ -6,6 +6,7 @@ import {
   LayersControl,
   MapConsumer,
   useMapEvents,
+  ZoomControl,
 } from "react-leaflet";
 import MAP_OPTIONS, {
   TILE_LAYER,
@@ -129,15 +130,16 @@ function Map() {
     forecastLabels,
     changeBaseLayer,
   };
-
+  console.log(`haveQuery`, haveQuery);
   return (
     <>
       <MapContainer
         scrollWheelZoom
         className="map"
         {...MAP_OPTIONS}
-        zoomControl={!haveQuery}
+        zoomControl={false}
       >
+        {!haveQuery && <ZoomControl position="topleft" />}
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {

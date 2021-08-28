@@ -17,10 +17,10 @@ const MAX_ZOOM_MAP = 12;
 const INITIAL_ZOOM = 3;
 const MAP_OPTIONS = {
   tap: false,
-  zoom: INITIAL_ZOOM,
+  zoom: INITIAL_ZOOM + 1,
   center: BOUNDS.getCenter(),
   maxBounds: BOUNDS,
-  minZoom: INITIAL_ZOOM,
+  minZoom: INITIAL_ZOOM - 1,
   maxZoom: MAX_ZOOM_MAP,
   preferCanvas: true,
   maxBoundsViscosity: VISCOSITY,
