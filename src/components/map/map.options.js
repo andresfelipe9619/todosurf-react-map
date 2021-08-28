@@ -17,9 +17,10 @@ const MAX_ZOOM_MAP = 12;
 const INITIAL_ZOOM = 3;
 const MAP_OPTIONS = {
   tap: false,
-  zoom: INITIAL_ZOOM + 1,
+  zoom: INITIAL_ZOOM,
   center: BOUNDS.getCenter(),
-  minZoom: INITIAL_ZOOM - 1,
+  maxBounds: BOUNDS,
+  minZoom: INITIAL_ZOOM,
   maxZoom: MAX_ZOOM_MAP,
   preferCanvas: true,
   maxBoundsViscosity: VISCOSITY,
@@ -38,6 +39,7 @@ export {
   TILE_LAYER,
   LABELS_LAYER,
   TILE_LAYER_CONFIG,
+  INITIAL_ZOOM,
   MAX_ZOOM_MAP,
   WHITE_SMOKE,
   SECONDARY,

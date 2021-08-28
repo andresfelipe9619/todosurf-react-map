@@ -1,4 +1,5 @@
 import React, { useRef, useState, memo, lazy } from "react";
+import L from "leaflet";
 import {
   MapContainer,
   TileLayer,
@@ -17,7 +18,6 @@ import MAP_OPTIONS, {
   DAY_SECTIONS,
   STEPS,
 } from "./map.options";
-import { isNullishValue, calculateBounds } from "./Query";
 import { getWindData, getWaveData } from "../../api";
 import Legend from "./Legend";
 
@@ -49,13 +49,11 @@ function Map() {
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
   const [zoom, setZoom] = useState(0);
-  const [userLocate, setUserLocate] = useState(null);
   const [haveQuery, sethaveQuery] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const [loadingStep, setLoadingStep] = useState(null);
   const [forecastLabels, setForecastLabels] = useState([]);
   const [surfingSpots, setSurfingSpots] = useState([]);
-
   const controlRef = useRef(null);
 
   const init = async () => {
@@ -87,13 +85,10 @@ function Map() {
     }
   };
 
-  async function loadData({ step, query = false, locate } = {}) {
+  async function loadData({ step, query = false } = {}) {
     console.log(`Loading data...`);
     sethaveQuery(query);
-    setUserLocate(locate);
-    // If we dont get any locate query or we get it as true,
-    // we have to show the spots layer
-    if (isNullishValue(step) && isNullishValue(locate)) return init();
+    if (!query) return init();
     const wind = await getWindData(step);
     setWindData([wind]);
   }
@@ -137,23 +132,32 @@ function Map() {
 
   return (
     <>
-      <MapContainer scrollWheelZoom className="map" {...MAP_OPTIONS}>
-        <Query loadData={loadData} setSurfingSpots={setSurfingSpots} />
+      <MapContainer
+        scrollWheelZoom
+        className="map"
+        {...MAP_OPTIONS}
+        zoomControl={!haveQuery}
+      >
         <LayersControl position="topright" ref={controlRef} collapsed={false}>
           <MapConsumer>
             {(map) => {
               return (
                 <>
+                  <Query
+                    map={map}
+                    loadData={loadData}
+                    setSurfingSpots={setSurfingSpots}
+                  />
                   <EventHandler {...{ map, setZoom, setSurfingSpots }} />
-                  {userLocate !== false && (
-                    <SurfingSpotsLayer
-                      {...mapProps}
-                      map={map}
-                      singleSpot={userLocate}
-                      {...{ surfingSpots, setSurfingSpots }}
-                    />
+                  <SurfingSpotsLayer
+                    {...mapProps}
+                    map={map}
+                    singleSpot={haveQuery}
+                    {...{ surfingSpots, setSurfingSpots }}
+                  />
+                  {(!changeBaseLayer || haveQuery) && (
+                    <CoastLayer {...mapProps} map={map} />
                   )}
-                  {!changeBaseLayer && <CoastLayer {...mapProps} map={map} />}
                   {showBar && (
                     <Control position="bottomleft">
                       <Progressbar
@@ -171,7 +175,7 @@ function Map() {
                       </div>
                     </Control>
                   )}
-                  {!!waveData.length && (
+                  {!haveQuery && !!waveData.length && (
                     <>
                       {!changeBaseLayer && (
                         <Control position="topright">
@@ -198,7 +202,7 @@ function Map() {
               );
             }}
           </MapConsumer>
-          {showBar && changeBaseLayer && (
+          {changeBaseLayer && !haveQuery && (
             <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} noWrap />
           )}
           <TileLayer url={LABELS_LAYER} pane="tooltipPane" noWrap />
@@ -208,7 +212,7 @@ function Map() {
   );
 }
 
-function EventHandler({ map, setZoom, setSurfingSpots, setShowSpots }) {
+function EventHandler({ map, setZoom }) {
   const mapEvents = useMapEvents({
     zoomend: () => {
       const zoom = mapEvents.getZoom();
@@ -217,14 +221,8 @@ function EventHandler({ map, setZoom, setSurfingSpots, setShowSpots }) {
     locationfound: (location) => {
       console.log("location found:", location);
       const { latitude: lat, longitude: lon } = location;
-      const zoom = mapEvents.getZoom();
-      setSurfingSpots([
-        {
-          nombre: "Current location",
-          position: [lat, lon],
-        },
-      ]);
-      calculateBounds({ map, lat, lon, zoom });
+      const center = new L.LatLng(lat, lon);
+      map.setView(center);
     },
     locationerror: (error) => {
       console.log("location error:", error);
