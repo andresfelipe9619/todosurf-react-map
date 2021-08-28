@@ -1,7 +1,7 @@
 import L from "leaflet";
 const TILE_LAYER =
   "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-// "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png";
+const QUERY_LAYER =  "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png";
 const TILE_LAYER_CONFIG = {
   attribution: "©OpenStreetMap, ©CartoDB",
 };
@@ -37,6 +37,7 @@ const STEPS = [...Array(MAX_STEP)].map((_, i) => ++i);
 
 export {
   TILE_LAYER,
+  QUERY_LAYER,
   LABELS_LAYER,
   TILE_LAYER_CONFIG,
   INITIAL_ZOOM,

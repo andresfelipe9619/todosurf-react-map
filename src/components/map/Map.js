@@ -18,6 +18,7 @@ import MAP_OPTIONS, {
   HALF_STEP,
   DAY_SECTIONS,
   STEPS,
+  QUERY_LAYER,
 } from "./map.options";
 import { getWindData, getWaveData } from "../../api";
 import Legend from "./Legend";
@@ -157,7 +158,7 @@ function Map() {
                     singleSpot={haveQuery}
                     {...{ surfingSpots, setSurfingSpots }}
                   />
-                  {(!changeBaseLayer || haveQuery) && (
+                  {!haveQuery && !changeBaseLayer && (
                     <CoastLayer {...mapProps} map={map} />
                   )}
                   {showBar && (
@@ -204,10 +205,15 @@ function Map() {
               );
             }}
           </MapConsumer>
-          {changeBaseLayer && !haveQuery && (
-            <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} noWrap />
+          {haveQuery && <TileLayer url={QUERY_LAYER} noWrap />}
+          {!haveQuery && (
+            <>
+              {changeBaseLayer && (
+                <TileLayer url={TILE_LAYER} {...TILE_LAYER_CONFIG} noWrap />
+              )}
+              <TileLayer url={LABELS_LAYER} pane="tooltipPane" noWrap />
+            </>
           )}
-          <TileLayer url={LABELS_LAYER} pane="tooltipPane" noWrap />
         </LayersControl>
       </MapContainer>
     </>
