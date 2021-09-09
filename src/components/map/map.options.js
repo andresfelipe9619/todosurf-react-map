@@ -13,7 +13,7 @@ const BOUNDS = new L.LatLngBounds(
   new L.LatLng(90, 180)
 );
 const VISCOSITY = 0.1;
-const MAX_ZOOM_MAP = 12;
+const MAX_ZOOM_MAP = 14;
 const INITIAL_ZOOM = 3;
 const MAP_OPTIONS = {
   tap: false,
