@@ -50,6 +50,7 @@ function Map() {
   const [windData, setWindData] = useState([]);
   const [waveData, setWaveData] = useState([]);
   const [step, setStep] = useState(INITIAL_STEP);
+  const [defaultStep, setDefaultStep] = useState(false);
   const [zoom, setZoom] = useState(0);
   const [haveQuery, sethaveQuery] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
@@ -58,13 +59,13 @@ function Map() {
   const [surfingSpots, setSurfingSpots] = useState([]);
   const controlRef = useRef(null);
 
-  const init = async () => {
+  const init = async (initStep) => {
     try {
       console.log(`Initilizing progressbar...`);
       setLoadingStep("layers");
       const [waveResponse, wind] = await Promise.all([
-        getWaveData(),
-        getWindData(),
+        getWaveData(initStep),
+        getWindData(initStep),
       ]);
       const wave = mapWaveData(waveResponse);
       setWaveData([wave]);
@@ -80,6 +81,7 @@ function Map() {
       }, []);
       console.log(`labels`, labels);
       setForecastLabels(labels);
+      if (initStep) setDefaultStep(initStep);
     } catch (error) {
       console.error(error);
     } finally {
@@ -90,7 +92,7 @@ function Map() {
   async function loadData({ step, query = false } = {}) {
     console.log(`Loading data...`);
     sethaveQuery(query);
-    if (!query) return init();
+    if (!query) return init(step);
     const wind = await getWindData(step);
     setWindData([wind]);
   }
@@ -128,6 +130,7 @@ function Map() {
     showBar,
     setStep,
     controlRef,
+    setDefaultStep,
     forecastLabels,
     changeBaseLayer,
   };
@@ -161,12 +164,13 @@ function Map() {
                   {!haveQuery && !changeBaseLayer && (
                     <CoastLayer {...mapProps} map={map} />
                   )}
-                  {showBar && (
+                  {(showBar || defaultStep) && (
                     <Control position="bottomleft">
                       <Progressbar
                         map={map}
                         {...mapProps}
                         firstLoad={firstLoad}
+                        defaultStep={defaultStep}
                         loadData={laodProgressbarData}
                       />
                     </Control>

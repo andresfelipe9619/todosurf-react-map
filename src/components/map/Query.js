@@ -15,17 +15,20 @@ export function loadQueriesToMap({ map, loadData, setSurfingSpots }) {
   const name = urlParams.get("name");
   const zoom = +urlParams.get("zoom");
 
-  function execDefault() {
+  function execDefault(defaultStep) {
     console.log(`Default exec...`);
     map.locate();
-    return loadData({ query: false });
+    return loadData({
+      query: false,
+      step: defaultStep,
+    });
   }
   if (zoom) calculateZoom({ map, zoom });
 
   // We got empty query string so load the default
-  if (!coords && isNullishValue(step)) return execDefault();
+  if (!coords && isNullishValue(step)) return execDefault(step);
   // We got only step
-  if (step && !coords) return loadData({ step, query: true });
+  if (step && !coords) return execDefault(step);
 
   // We got coords we need to calc the zoom and bounds
   const [lat, lon] = coords.trim().split(",");
