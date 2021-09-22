@@ -15,7 +15,7 @@ export function loadQueriesToMap({ map, loadData, setSurfingSpots }) {
   const name = urlParams.get("name");
   const zoom = +urlParams.get("zoom");
 
-  function execDefault(defaultStep) {
+  function execDefault(defaultStep = 0) {
     console.log(`Default exec...`);
     map.locate();
     return loadData({
@@ -26,7 +26,7 @@ export function loadQueriesToMap({ map, loadData, setSurfingSpots }) {
   if (zoom) calculateZoom({ map, zoom });
 
   // We got empty query string so load the default
-  if (!coords && isNullishValue(step)) return execDefault(step);
+  if (!coords && isNullishValue(step)) return execDefault();
   // We got only step
   if (step && !coords) return execDefault(step);
 

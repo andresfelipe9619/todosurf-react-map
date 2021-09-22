@@ -46,6 +46,20 @@ async function execParallelJob({
   set(concat(lastBundle.map(map)));
 }
 
+function getProgressbarLabels(firstWave, initStep) {
+  const hourRange = 24 / DAY_SECTIONS;
+  let startDate = new Date(firstWave.time.replace(/-/g, "/"));
+  if (initStep > 0) {
+    startDate = subtractHoursToDate(startDate, initStep * hourRange);
+  }
+  const labels = [...Array(MAX_STEP + 1)].reduce((acc, _, i) => {
+    let stepTime = hourRange * i;
+    acc.push(addHoursToDate(startDate, stepTime));
+    return acc;
+  }, []);
+  return labels;
+}
+
 function Map() {
   const [windData, setWindData] = useState([]);
   const [waveData, setWaveData] = useState([]);
@@ -63,6 +77,7 @@ function Map() {
     try {
       console.log(`Initilizing progressbar...`);
       setLoadingStep("layers");
+      console.log(`initStep`, initStep);
       const [waveResponse, wind] = await Promise.all([
         getWaveData(initStep),
         getWindData(initStep),
@@ -72,13 +87,7 @@ function Map() {
       setWindData([wind]);
       const [firstWave] = wave;
       if (!firstWave?.time) return;
-      const hourRange = 24 / DAY_SECTIONS;
-      const startDate = new Date(firstWave.time.replace(/-/g, "/"));
-      const labels = [...Array(MAX_STEP + 1)].reduce((acc, _, i) => {
-        let stepTime = hourRange * i;
-        acc.push(addHoursToDate(startDate, stepTime));
-        return acc;
-      }, []);
+      const labels = getProgressbarLabels(firstWave, initStep);
       console.log(`labels`, labels);
       setForecastLabels(labels);
       if (initStep) setDefaultStep(initStep);
@@ -245,6 +254,10 @@ function EventHandler({ map, setZoom }) {
 
 function addHoursToDate(date, hours) {
   return new Date(new Date(date).setHours(date.getHours() + hours));
+}
+
+function subtractHoursToDate(date, hours) {
+  return new Date(new Date(date).setHours(date.getHours() - hours));
 }
 
 function getMax(array) {
